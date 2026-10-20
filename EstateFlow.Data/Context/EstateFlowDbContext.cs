@@ -26,6 +26,7 @@ public class EstateFlowDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ScannedDocument> ScannedDocuments => Set<ScannedDocument>();
     public DbSet<AutomatedReport> AutomatedReports => Set<AutomatedReport>();
     public DbSet<EstateAdvertisement> EstateAdvertisements => Set<EstateAdvertisement>();
+    public DbSet<EstateAdvertisement> Advertisements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,6 +119,18 @@ public class EstateFlowDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<EstateAdvertisement>()
             .HasOne(x => x.Estate).WithMany(e => e.Advertisements)
             .HasForeignKey(x => x.EstateId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<EstateAdvertisement>(entity =>
+        {
+            entity.HasKey(a => a.AdvertisementId);
+
+            entity.HasIndex(a => new { a.EstateId, a.AdvertisementType })
+                  .IsUnique();
+
+            entity.HasOne(a => a.Estate)
+                  .WithMany(e => e.Advertisements)
+                  .HasForeignKey(a => a.EstateId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
         foreach (var prop in modelBuilder.Model.GetEntityTypes()
                      .SelectMany(t => t.GetProperties())

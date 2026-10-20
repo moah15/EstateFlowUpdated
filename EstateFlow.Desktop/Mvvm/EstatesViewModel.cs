@@ -15,7 +15,7 @@ public class EstatesViewModel : BaseViewModel
     public ObservableCollection<EstateRow> Estates { get; } = new();
     public ObservableCollection<StatusChip> StatusChips { get; } = new();
 
-    public List<string> SortOptions { get; } = new()
+    public IReadOnlyList<string> SortOptions { get; } = new List<string>
     {
         "Newest death first",
         "Oldest death first",
@@ -70,11 +70,12 @@ public class EstatesViewModel : BaseViewModel
         SelectStatusCommand = new RelayCommand(p =>
         {
             _selectedStatus = p as string ?? AllStatuses;
-            foreach (var c in StatusChips) c.IsActive = c.Name == _selectedStatus;
+            foreach (var c in StatusChips)
+                c.IsActive = c.Name == _selectedStatus;
             ApplyFilter();
         });
 
-        _ = LoadEstatesAsync();
+        LoadEstatesCommand.Execute(null);
     }
 
     private async Task LoadEstatesAsync()
@@ -120,7 +121,7 @@ public class EstatesViewModel : BaseViewModel
         if (_selectedStatus != AllStatuses)
             q = q.Where(e => e.Status == _selectedStatus);
 
-        var tokens = (SearchText ?? string.Empty)
+        var tokens = SearchText
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(t => t.ToLowerInvariant())
             .ToList();
@@ -130,6 +131,7 @@ public class EstatesViewModel : BaseViewModel
 
         q = SortOption switch
         {
+            "Newest death first" => q.OrderByDescending(e => e.DateOfDeath),
             "Oldest death first" => q.OrderBy(e => e.DateOfDeath),
             "File number" => q.OrderBy(e => e.FileNumber, StringComparer.OrdinalIgnoreCase),
             "Deceased name (A–Z)" => q.OrderBy(e => e.DeceasedName, StringComparer.OrdinalIgnoreCase),

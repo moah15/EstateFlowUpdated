@@ -42,6 +42,39 @@ public class EstateRepository : IEstateRepository
             .FirstOrDefaultAsync(
                 e => e.EstateId == estateId);
     }
+    public async Task UpdateExecutorAsync(Executor executor)
+    {
+        _context.Executors.Update(executor);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpsertAdvertisementAsync(EstateAdvertisement advertisement)
+    {
+        var existing = await _context.Advertisements
+            .FirstOrDefaultAsync(a =>
+                a.EstateId == advertisement.EstateId &&
+                a.AdvertisementType == advertisement.AdvertisementType);
+
+        if (existing is null)
+        {
+            advertisement.AdvertisementId = Guid.NewGuid();
+            _context.Advertisements.Add(advertisement);
+        }
+        else
+        {
+            existing.GazetteNumber = advertisement.GazetteNumber;
+            existing.GazetteDate = advertisement.GazetteDate;
+            existing.NewspaperName = advertisement.NewspaperName;
+            existing.NewspaperDate = advertisement.NewspaperDate;
+            existing.ClaimDeadline = advertisement.ClaimDeadline;
+            existing.ObjectionsReceived = advertisement.ObjectionsReceived;
+            existing.Notes = advertisement.Notes;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+*/
 
     public async Task<List<Estate>> GetAllAsync()
     {

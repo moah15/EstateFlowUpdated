@@ -86,4 +86,6 @@ public interface IEstateRepository
     Task<List<AuditLog>> GetAuditLogsAsync(
         Guid estateId,
         int take);
+    Task UpdateExecutorAsync(Executor executor);
+    Task UpsertAdvertisementAsync(EstateAdvertisement advertisement);
 }

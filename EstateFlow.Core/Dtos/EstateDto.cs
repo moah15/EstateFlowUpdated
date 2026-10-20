@@ -1,3 +1,5 @@
+using EstateFlow.Core.Models;
+
 namespace EstateFlow.Core.Dtos;
 
 public class EstateDto
@@ -97,6 +99,11 @@ public class ExecutorDto
     public string? MastersOffice { get; set; }
     public string? LettersOfExecutorshipRef { get; set; }
     public DateTime? LettersOfExecutorshipDate { get; set; }
+    
+    public string? LettersDocumentUrl { get; set; }
+    public string? LettersDocumentName { get; set; }
+    public List<AdvertisementDto> Advertisements { get; set; } = new();
+    
 }
 
 public class BeneficiaryDto

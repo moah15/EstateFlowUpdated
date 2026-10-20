@@ -306,6 +306,82 @@ public class ApiClient : IApiClient
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task UpdateExecutorAsync(
+        Guid estateId,
+        Guid executorId,
+        UpdateExecutorRequest request)
+    {
+        var response =
+            await _httpClient.PutAsJsonAsync(
+                $"api/estates/{estateId}/executors/{executorId}",
+                request);
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "Executor details could not be saved");
+    }
+
+    public async Task<string> UploadExecutorDocumentAsync(
+        Guid estateId,
+        Guid executorId,
+        string filePath)
+    {
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException(
+                "The selected file could not be found.",
+                filePath);
+
+        await using var fileStream =
+            File.OpenRead(filePath);
+
+        using var form =
+            new MultipartFormDataContent();
+
+        using var fileContent =
+            new StreamContent(fileStream);
+
+        fileContent.Headers.ContentType =
+            new MediaTypeHeaderValue(
+                GetContentType(filePath));
+
+        form.Add(
+            fileContent,
+            "file",
+            Path.GetFileName(filePath));
+
+        var response =
+            await _httpClient.PostAsync(
+                $"api/estates/{estateId}/executors/{executorId}/letters",
+                form);
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "Letters of executorship upload failed");
+
+        using var json =
+            JsonDocument.Parse(
+                await response.Content.ReadAsStringAsync());
+
+        return json.RootElement
+            .TryGetProperty("url", out var urlProp)
+            ? urlProp.GetString() ?? string.Empty
+            : string.Empty;
+    }
+
+    public async Task UpsertAdvertisementAsync(
+        Guid estateId,
+        UpsertAdvertisementRequest request)
+    {
+        var response =
+            await _httpClient.PutAsJsonAsync(
+                $"api/estates/{estateId}/advertisements",
+                request);
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "Advertisement details could not be saved");
+    }
+
     // ─────────────────────────────────────────────
     // Beneficiaries
     // ─────────────────────────────────────────────
@@ -725,7 +801,6 @@ public class ApiClient : IApiClient
         return tempPath;
     }
 
-
     public async Task DeleteDocumentAsync(
         Guid estateId,
         Guid documentId)
@@ -738,6 +813,10 @@ public class ApiClient : IApiClient
             response,
             "Document deletion failed");
     }
+
+    // ─────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────
 
     private static async Task EnsureSuccessWithApiMessageAsync(
         HttpResponseMessage response,
@@ -836,20 +915,5 @@ public class ApiClient : IApiClient
             _ =>
                 "application/octet-stream"
         };
-    }
-
-    public Task UpdateExecutorAsync(Guid estateId, Guid executorDetailId, UpdateExecutorRequest updateExecutorRequest)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<string> UploadExecutorDocumentAsync(Guid estateId, Guid executorDetailId, string fileName)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpsertAdvertisementAsync(Guid estateId, UpsertAdvertisementRequest upsertAdvertisementRequest)
-    {
-        throw new NotImplementedException();
     }
 }

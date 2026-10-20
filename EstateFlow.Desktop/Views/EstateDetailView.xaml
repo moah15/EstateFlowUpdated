@@ -685,564 +685,507 @@
             <!-- EXECUTORS -->
             <!-- ================================================= -->
 
-            <TabItem Header="Executors">
-                <ScrollViewer Padding="20">
-                    <StackPanel MaxWidth="700"
-                                HorizontalAlignment="Left">
+            TabItem Header="Executors">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                <StackPanel MaxWidth="700" HorizontalAlignment="Left">
 
-                        <Border Style="{StaticResource SectionCardBorderStyle}">
-                            <StackPanel>
+                    <!-- ── ADD EXECUTOR ───────────────────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="ADD EXECUTOR" Style="{StaticResource SectionTitleStyle}"/>
 
-                                <TextBlock Text="ADD EXECUTOR"
-                                           Style="{StaticResource SectionTitleStyle}"/>
+                            <TextBlock Text="Full Name" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding NewExecutorFullName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="More than one executor can be added to the same estate. Use the Role field for Nominated Executor, Co-Executor, or another applicable role."
-                                           FontFamily="{StaticResource SansFont}"
-                                           FontSize="11"
-                                           Foreground="#6B6E76"
-                                           TextWrapping="Wrap"
-                                           Margin="0,0,0,14"/>
+                            <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding NewExecutorIdNumber, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
 
-                                <TextBlock Text="Full Name"
-                                           Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
+                            <ComboBox IsEditable="True"
+                              Text="{Binding NewExecutorRole, UpdateSourceTrigger=PropertyChanged}"
+                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Nominated Executor"/>
+                                <ComboBoxItem Content="Co-Executor"/>
+                                <ComboBoxItem Content="Executor Dative"/>
+                                <ComboBoxItem Content="Executor Testamentary"/>
+                            </ComboBox>
 
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding NewExecutorFullName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding NewExecutorEmail, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="Identity Number"
-                                           Style="{StaticResource FieldLabelStyle}"/>
+                            <Button Content="+ Add Executor"
+                            Command="{Binding AddExecutorCommand}"
+                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                            Cursor="Hand" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding NewExecutorIdNumber, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Email"
-                                           Style="{StaticResource FieldLabelStyle}"/>
-
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding NewExecutorEmail, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="Role"
-                                           Style="{StaticResource FieldLabelStyle}"/>
-
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding NewExecutorRole, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <Button Content="+ Add Executor"
-                                        Command="{Binding AddExecutorCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
-
-                        <ItemsControl ItemsSource="{Binding Estate.Executors}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource SectionCardBorderStyle}">
-                                        <Grid>
-
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <StackPanel Grid.Column="0">
-
-                                                <TextBlock Text="{Binding FullName}"
-                                                           FontFamily="{StaticResource SerifFont}"
-                                                           FontSize="15"
-                                                           Foreground="#16181C"
-                                                           Margin="0,0,0,10"/>
-
-                                                <Grid Style="{StaticResource FieldRowGrid}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="180"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="Identity Number"
-                                                               Style="{StaticResource FieldLabelStyle}"/>
-
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding IdNumber}"
-                                                               Style="{StaticResource FieldValueMonoStyle}"/>
-                                                </Grid>
-
-                                                <Grid Style="{StaticResource FieldRowGrid}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="180"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="Email"
-                                                               Style="{StaticResource FieldLabelStyle}"/>
-
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Email}"
-                                                               Style="{StaticResource FieldValueStyle}"/>
-                                                </Grid>
-
-                                                <Grid Style="{StaticResource FieldRowGrid}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="180"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="Role"
-                                                               Style="{StaticResource FieldLabelStyle}"/>
-
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Role}"
-                                                               Style="{StaticResource FieldValueStyle}"/>
-                                                </Grid>
-
-                                            </StackPanel>
-
-                                            <Button Grid.Column="1"
-                                                    Content="Remove"
-                                                    Command="{Binding DataContext.DeleteExecutorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding ExecutorId}"
-                                                    Background="Transparent"
-                                                    BorderThickness="0"
-                                                    Foreground="#8B3A3A"
-                                                    FontFamily="{StaticResource SansFont}"
-                                                    FontSize="11"
-                                                    Cursor="Hand"
-                                                    VerticalAlignment="Top"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-
-            <!-- ================================================= -->
-            <!-- EXECUTOR -->
-            <!-- ================================================= -->
-
-            <TabItem Header="Executor">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
-                    <StackPanel MaxWidth="700" HorizontalAlignment="Left">
-
-                        <!-- ── EXECUTOR SELECTOR ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,0,0,0">
-                            <StackPanel>
-                                <TextBlock Text="SELECT EXECUTOR" Style="{StaticResource SectionTitleStyle}"/>
-                                <TextBlock Text="Click an executor below to load their details for editing."
-                                           FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
-                                           TextWrapping="Wrap" Margin="0,0,0,12"/>
-
-                                <ItemsControl ItemsSource="{Binding Estate.Executors}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4"
-                                                    Padding="12,8" Margin="0,0,0,6" Cursor="Hand">
-                                                <Border.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick"
-                                                                  Command="{Binding DataContext.SelectExecutorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                  CommandParameter="{Binding}"/>
-                                                </Border.InputBindings>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding FullName}"
-                                                               FontFamily="{StaticResource SansFont}" FontSize="13"
-                                                               Foreground="#16181C" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding Role, StringFormat=' — {0}'}"
-                                                               FontFamily="{StaticResource MonoFont}" FontSize="11"
-                                                               Foreground="#6B6E76" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- ── EXECUTOR DETAILS ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}">
-                            <StackPanel>
-                                <TextBlock Text="EXECUTOR DETAILS" Style="{StaticResource SectionTitleStyle}"/>
-
-                                <TextBlock Text="Full Name" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailFullName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailIdNumber, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                                          Text="{Binding ExecutorDetailRole, UpdateSourceTrigger=PropertyChanged}"
-                                          Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Nominated Executor"/>
-                                    <ComboBoxItem Content="Co-Executor"/>
-                                    <ComboBoxItem Content="Executor Dative"/>
-                                    <ComboBoxItem Content="Executor Testamentary"/>
-                                </ComboBox>
-
-                                <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailEmail, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailPhone, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailAddress, UpdateSourceTrigger=PropertyChanged}"
-                                         TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
-
-                                <TextBlock Text="Master's Office" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                                          Text="{Binding ExecutorDetailMastersOffice, UpdateSourceTrigger=PropertyChanged}"
-                                          Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Cape Town"/>
-                                    <ComboBoxItem Content="Johannesburg"/>
-                                    <ComboBoxItem Content="Pretoria"/>
-                                    <ComboBoxItem Content="Durban"/>
-                                    <ComboBoxItem Content="Bloemfontein"/>
-                                    <ComboBoxItem Content="Port Elizabeth"/>
-                                    <ComboBoxItem Content="East London"/>
-                                    <ComboBoxItem Content="Kimberley"/>
-                                    <ComboBoxItem Content="Polokwane"/>
-                                    <ComboBoxItem Content="Nelspruit"/>
-                                    <ComboBoxItem Content="Mmabatho"/>
-                                    <ComboBoxItem Content="Pietermaritzburg"/>
-                                </ComboBox>
-
-                                <Button Content="Save Executor Details"
-                                        Command="{Binding SaveExecutorDetailCommand}"
-                                        Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                        Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                                        Cursor="Hand" HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- ── LETTERS OF EXECUTORSHIP ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
-                            <StackPanel>
-                                <TextBlock Text="LETTERS OF EXECUTORSHIP" Style="{StaticResource SectionTitleStyle}"/>
-                                <TextBlock Text="Issued by the Master of the High Court confirming the executor's appointment."
-                                           FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
-                                           TextWrapping="Wrap" Margin="0,0,0,12"/>
-
-                                <TextBlock Text="Reference Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding ExecutorDetailLettersRef, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Date Issued" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding ExecutorDetailLettersDate}"
-                                            Padding="8,6" Margin="0,0,0,12"/>
-
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <Button Content="Upload Letters"
-                                            Command="{Binding UploadLettersCommand}"
-                                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                                            Cursor="Hand" Margin="0,0,10,0"/>
-                                    <Button Content="View Letters"
-                                            Command="{Binding ViewLettersCommand}"
+                    <!-- ── EXECUTOR LIST ──────────────────────────────────────── -->
+                    <ItemsControl ItemsSource="{Binding Estate.Executors}" Margin="0,0,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SectionCardBorderStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding FullName}"
+                                               FontFamily="{StaticResource SerifFont}" FontSize="15"
+                                               Foreground="#16181C"/>
+                                            <TextBlock Text="{Binding Role}"
+                                               FontFamily="{StaticResource MonoFont}" FontSize="11"
+                                               Foreground="#6B6E76" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding Email}"
+                                               FontFamily="{StaticResource SansFont}" FontSize="11"
+                                               Foreground="#6B6E76" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                            <Button Content="Edit"
+                                            Command="{Binding DataContext.SelectExecutorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
                                             Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
-                                            Foreground="#16181C" Padding="14,7"
-                                            FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasLettersDocument}" Value="False">
-                                                        <Setter Property="IsEnabled" Value="False"/>
-                                                        <Setter Property="Opacity" Value="0.4"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </StackPanel>
+                                            Foreground="#16181C" Padding="10,5"
+                                            FontFamily="{StaticResource SansFont}" FontSize="11"
+                                            Cursor="Hand" Margin="0,0,6,0"/>
+                                            <Button Content="Remove"
+                                            Command="{Binding DataContext.DeleteExecutorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding ExecutorId}"
+                                            Background="Transparent" BorderThickness="0"
+                                            Foreground="#8B3A3A" Padding="10,5"
+                                            FontFamily="{StaticResource SansFont}" FontSize="11"
+                                            Cursor="Hand"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                                <TextBlock Text="{Binding LettersDocumentName}"
-                                           FontFamily="{StaticResource MonoFont}" FontSize="11"
-                                           Foreground="#6B6E76" Margin="0,8,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                    <!-- ── EXECUTOR DETAILS (shown after clicking Edit) ──────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource SectionCardBorderStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
+                                        <Setter Property="Opacity" Value="0.45"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="EXECUTOR DETAILS" Style="{StaticResource SectionTitleStyle}"/>
+                            <TextBlock Text="Click &#x22;Edit&#x22; on an executor above to load their details."
+                               FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
+                               TextWrapping="Wrap" Margin="0,0,0,12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <TextBlock Text="Full Name" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailFullName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailIdNumber, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
+
+                            <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
+                            <ComboBox IsEditable="True"
+                              Text="{Binding ExecutorDetailRole, UpdateSourceTrigger=PropertyChanged}"
+                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Nominated Executor"/>
+                                <ComboBoxItem Content="Co-Executor"/>
+                                <ComboBoxItem Content="Executor Dative"/>
+                                <ComboBoxItem Content="Executor Testamentary"/>
+                            </ComboBox>
+
+                            <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailEmail, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailPhone, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
+
+                            <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailAddress, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
+
+                            <TextBlock Text="Master's Office" Style="{StaticResource FieldLabelStyle}"/>
+                            <ComboBox IsEditable="True"
+                              Text="{Binding ExecutorDetailMastersOffice, UpdateSourceTrigger=PropertyChanged}"
+                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Cape Town"/>
+                                <ComboBoxItem Content="Johannesburg"/>
+                                <ComboBoxItem Content="Pretoria"/>
+                                <ComboBoxItem Content="Durban"/>
+                                <ComboBoxItem Content="Bloemfontein"/>
+                                <ComboBoxItem Content="Port Elizabeth"/>
+                                <ComboBoxItem Content="East London"/>
+                                <ComboBoxItem Content="Kimberley"/>
+                                <ComboBoxItem Content="Polokwane"/>
+                                <ComboBoxItem Content="Nelspruit"/>
+                                <ComboBoxItem Content="Mmabatho"/>
+                                <ComboBoxItem Content="Pietermaritzburg"/>
+                            </ComboBox>
+
+                            <Button Content="Save Executor Details"
+                            Command="{Binding SaveExecutorDetailCommand}"
+                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                            Cursor="Hand" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── LETTERS OF EXECUTORSHIP ────────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource SectionCardBorderStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
+                                        <Setter Property="Opacity" Value="0.45"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="LETTERS OF EXECUTORSHIP" Style="{StaticResource SectionTitleStyle}"/>
+                            <TextBlock Text="Issued by the Master of the High Court confirming the executor's appointment."
+                               FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
+                               TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                            <TextBlock Text="Reference Number" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding ExecutorDetailLettersRef, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
+
+                            <TextBlock Text="Date Issued" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding ExecutorDetailLettersDate}"
+                                Padding="8,6" Margin="0,0,0,12"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="Upload Letters"
+                                Command="{Binding UploadLettersCommand}"
+                                Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                                Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                Cursor="Hand" Margin="0,0,10,0"/>
+                                <Button Content="View Letters"
+                                Command="{Binding ViewLettersCommand}"
+                                Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
+                                Foreground="#16181C" Padding="14,7"
+                                FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasLettersDocument}" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                    <Setter Property="Opacity" Value="0.4"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Button.Style>
+                                </Button>
                             </StackPanel>
-                        </Border>
 
-                        <!-- ── SECTION 29 ADVERTISEMENT ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
-                            <StackPanel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="SECTION 29 ADVERTISEMENT" Style="{StaticResource SectionTitleStyle}"/>
-                                        <TextBlock Text="Notice to creditors in the Government Gazette and a newspaper — 30 days to lodge claims."
-                                                   FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
-                                                   TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    </StackPanel>
-                                    <Border Grid.Column="1" CornerRadius="3" Padding="8,4" VerticalAlignment="Top">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#D4EDDA"/>
+                            <TextBlock Text="{Binding LettersDocumentName}"
+                               FontFamily="{StaticResource MonoFont}" FontSize="11"
+                               Foreground="#6B6E76" Margin="0,8,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasLettersDocument}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── SECTION 29 ADVERTISEMENT ───────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="SECTION 29 ADVERTISEMENT" Style="{StaticResource SectionTitleStyle}"/>
+                                    <TextBlock Text="Notice to creditors in the Government Gazette and a newspaper — 30 days to lodge claims."
+                                       FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
+                                       TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" CornerRadius="3" Padding="8,4" VerticalAlignment="Top">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#D4EDDA"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Section29Complete}" Value="False">
+                                                    <Setter Property="Background" Value="#FFF3CD"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Section29Overdue}" Value="True">
+                                                    <Setter Property="Background" Value="#F8D7DA"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="10">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="COMPLETE"/>
+                                                <Setter Property="Foreground" Value="#155724"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Section29Complete}" Value="False">
-                                                        <Setter Property="Background" Value="#FFF3CD"/>
+                                                        <Setter Property="Text" Value="PENDING"/>
+                                                        <Setter Property="Foreground" Value="#856404"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Section29Overdue}" Value="True">
-                                                        <Setter Property="Background" Value="#F8D7DA"/>
+                                                        <Setter Property="Text" Value="OVERDUE"/>
+                                                        <Setter Property="Foreground" Value="#721C24"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </Border.Style>
-                                        <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="10">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="COMPLETE"/>
-                                                    <Setter Property="Foreground" Value="#155724"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Section29Complete}" Value="False">
-                                                            <Setter Property="Text" Value="PENDING"/>
-                                                            <Setter Property="Foreground" Value="#856404"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Section29Overdue}" Value="True">
-                                                            <Setter Property="Text" Value="OVERDUE"/>
-                                                            <Setter Property="Foreground" Value="#721C24"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Border>
-                                </Grid>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
 
-                                <TextBlock Text="Gazette Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section29GazetteNumber, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
+                            <TextBlock Text="Gazette Number" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section29GazetteNumber, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
 
-                                <TextBlock Text="Gazette Date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section29GazetteDate}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Gazette Date" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section29GazetteDate}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Newspaper Name" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section29NewspaperName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Newspaper Name" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section29NewspaperName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="Newspaper Date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section29NewspaperDate}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Newspaper Date" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section29NewspaperDate}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Claim Deadline (30 days from last publication)" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section29ClaimDeadline}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Claim Deadline (30 days from last publication)" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section29ClaimDeadline}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <CheckBox Content="Objections / claims received"
-                                          IsChecked="{Binding Section29ObjectionsReceived}"
-                                          FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,8"/>
+                            <CheckBox Content="Objections / claims received"
+                              IsChecked="{Binding Section29ObjectionsReceived}"
+                              FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,8"/>
 
-                                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section29Notes, UpdateSourceTrigger=PropertyChanged}"
-                                         TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
+                            <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section29Notes, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <Button Content="Save Section 29"
-                                            Command="{Binding SaveSection29Command}"
-                                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                                            Cursor="Hand" Margin="0,0,10,0"/>
-                                    <Button Content="Generate Notice Draft"
-                                            Command="{Binding GenerateSection29Command}"
-                                            Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
-                                            Foreground="#16181C" Padding="14,7"
-                                            FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"/>
-                                </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="Save Section 29"
+                                Command="{Binding SaveSection29Command}"
+                                Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                                Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                Cursor="Hand" Margin="0,0,10,0"/>
+                                <Button Content="Generate Notice Draft"
+                                Command="{Binding GenerateSection29Command}"
+                                Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
+                                Foreground="#16181C" Padding="14,7"
+                                FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"/>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
+                    </Border>
 
-                        <!-- ── SECTION 35 ADVERTISEMENT ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
-                            <StackPanel>
-                                <TextBlock Text="SECTION 35 ADVERTISEMENT" Style="{StaticResource SectionTitleStyle}"/>
-                                <TextBlock Text="Notice to heirs and legatees — published after the L&amp;D account lies for inspection."
-                                           FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
-                                           TextWrapping="Wrap" Margin="0,0,0,12"/>
+                    <!-- ── SECTION 35 ADVERTISEMENT ───────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="SECTION 35 ADVERTISEMENT" Style="{StaticResource SectionTitleStyle}"/>
+                            <TextBlock Text="Notice to heirs and legatees — published after the L&amp;D account lies for inspection."
+                               FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
+                               TextWrapping="Wrap" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Gazette Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section35GazetteNumber, UpdateSourceTrigger=PropertyChanged}"
-                                         FontFamily="{StaticResource MonoFont}"/>
+                            <TextBlock Text="Gazette Number" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section35GazetteNumber, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="{StaticResource MonoFont}"/>
 
-                                <TextBlock Text="Gazette Date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section35GazetteDate}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Gazette Date" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section35GazetteDate}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Newspaper Name" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section35NewspaperName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Newspaper Name" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section35NewspaperName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="Newspaper Date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section35NewspaperDate}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Newspaper Date" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section35NewspaperDate}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Claim Deadline" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding Section35ClaimDeadline}" Padding="8,6" Margin="0,0,0,12"/>
+                            <TextBlock Text="Claim Deadline" Style="{StaticResource FieldLabelStyle}"/>
+                            <DatePicker SelectedDate="{Binding Section35ClaimDeadline}" Padding="8,6" Margin="0,0,0,12"/>
 
-                                <CheckBox Content="Objections / claims received"
-                                          IsChecked="{Binding Section35ObjectionsReceived}"
-                                          FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,8"/>
+                            <CheckBox Content="Objections / claims received"
+                              IsChecked="{Binding Section35ObjectionsReceived}"
+                              FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,8"/>
 
-                                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                                         Text="{Binding Section35Notes, UpdateSourceTrigger=PropertyChanged}"
-                                         TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
+                            <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Style="{StaticResource QuickAddTextBox}"
+                             Text="{Binding Section35Notes, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
 
-                                <Button Content="Save Section 35"
-                                        Command="{Binding SaveSection35Command}"
-                                        Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                        Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                                        Cursor="Hand" HorizontalAlignment="Left" Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Border>
+                            <Button Content="Save Section 35"
+                            Command="{Binding SaveSection35Command}"
+                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                            Cursor="Hand" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                        <!-- ── EXECUTOR DOCUMENT UPLOAD ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
-                            <StackPanel>
-                                <TextBlock Text="UPLOAD EXECUTOR DOCUMENT" Style="{StaticResource SectionTitleStyle}"/>
+                    <!-- ── EXECUTOR DOCUMENT UPLOAD ───────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource SectionCardBorderStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
+                                        <Setter Property="Opacity" Value="0.45"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="UPLOAD EXECUTOR DOCUMENT" Style="{StaticResource SectionTitleStyle}"/>
 
-                                <TextBlock Text="Document Category" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                                          Text="{Binding SelectedDocumentType, UpdateSourceTrigger=PropertyChanged}"
-                                          Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Letters of Executorship"/>
-                                    <ComboBoxItem Content="Death Certificate"/>
-                                    <ComboBoxItem Content="Identity Document"/>
-                                    <ComboBoxItem Content="Will"/>
-                                    <ComboBoxItem Content="Power of Attorney"/>
-                                    <ComboBoxItem Content="Correspondence"/>
-                                    <ComboBoxItem Content="Other"/>
-                                </ComboBox>
+                            <TextBlock Text="Document Category" Style="{StaticResource FieldLabelStyle}"/>
+                            <ComboBox IsEditable="True"
+                              Text="{Binding SelectedDocumentType, UpdateSourceTrigger=PropertyChanged}"
+                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Letters of Executorship"/>
+                                <ComboBoxItem Content="Death Certificate"/>
+                                <ComboBoxItem Content="Identity Document"/>
+                                <ComboBoxItem Content="Will"/>
+                                <ComboBoxItem Content="Power of Attorney"/>
+                                <ComboBoxItem Content="Correspondence"/>
+                                <ComboBoxItem Content="Other"/>
+                            </ComboBox>
 
-                                <TextBlock Text="{Binding SelectedFileName, TargetNullValue='No file selected'}"
-                                           FontFamily="{StaticResource MonoFont}" FontSize="11"
-                                           Foreground="#6B6E76" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding SelectedFileName, TargetNullValue='No file selected'}"
+                               FontFamily="{StaticResource MonoFont}" FontSize="11"
+                               Foreground="#6B6E76" Margin="0,0,0,8"/>
 
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="Choose File"
-                                            Command="{Binding ChooseFileCommand}"
-                                            Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
-                                            Foreground="#16181C" Padding="14,7"
-                                            FontFamily="{StaticResource SansFont}" FontSize="12"
-                                            Cursor="Hand" Margin="0,0,10,0"/>
-                                    <Button Content="Upload"
-                                            Command="{Binding UploadCommand}"
-                                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                                            Cursor="Hand">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding CanUpload}" Value="False">
-                                                        <Setter Property="IsEnabled" Value="False"/>
-                                                        <Setter Property="Opacity" Value="0.4"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- ── EXECUTOR DOCUMENT REGISTRY ── -->
-                        <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
-                            <StackPanel>
-                                <TextBlock Text="EXECUTOR DOCUMENT REGISTRY" Style="{StaticResource SectionTitleStyle}"/>
-
-                                <ItemsControl ItemsSource="{Binding ExecutorDocuments}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="0,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <StackPanel Grid.Column="0">
-                                                        <TextBlock Text="{Binding FileName}"
-                                                                   FontFamily="{StaticResource SansFont}" FontSize="12"
-                                                                   Foreground="#16181C"/>
-                                                        <TextBlock Text="{Binding DocumentType}"
-                                                                   FontFamily="{StaticResource MonoFont}" FontSize="10"
-                                                                   Foreground="#6B6E76" Margin="0,2,0,0"/>
-                                                        <TextBlock Text="{Binding UploadedAt, StringFormat='Uploaded {0:dd MMM yyyy}'}"
-                                                                   FontFamily="{StaticResource MonoFont}" FontSize="10"
-                                                                   Foreground="#9CA0A8"/>
-                                                    </StackPanel>
-
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Button Content="View"
-                                                                Command="{Binding DataContext.ViewDocumentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                CommandParameter="{Binding DocumentId}"
-                                                                Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
-                                                                Foreground="#16181C" Padding="10,5"
-                                                                FontFamily="{StaticResource SansFont}" FontSize="11"
-                                                                Cursor="Hand" Margin="0,0,6,0"/>
-                                                        <Button Content="Delete"
-                                                                Command="{Binding DataContext.DeleteDocumentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                CommandParameter="{Binding DocumentId}"
-                                                                Background="Transparent" BorderThickness="0"
-                                                                Foreground="#8B3A3A" Padding="10,5"
-                                                                FontFamily="{StaticResource SansFont}" FontSize="11"
-                                                                Cursor="Hand"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <TextBlock Text="No documents uploaded yet."
-                                           FontFamily="{StaticResource SansFont}" FontSize="12"
-                                           Foreground="#9CA0A8" Margin="0,8,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Choose File"
+                                Command="{Binding ChooseFileCommand}"
+                                Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
+                                Foreground="#16181C" Padding="14,7"
+                                FontFamily="{StaticResource SansFont}" FontSize="12"
+                                Cursor="Hand" Margin="0,0,10,0"/>
+                                <Button Content="Upload"
+                                Command="{Binding UploadCommand}"
+                                Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                                Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ExecutorDocuments.Count}" Value="0">
-                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                <DataTrigger Binding="{Binding CanUpload}" Value="False">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                    <Setter Property="Opacity" Value="0.4"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Button.Style>
+                                </Button>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
+                    </Border>
 
-                    </StackPanel>
-                </ScrollViewer>
+                    <!-- ── EXECUTOR DOCUMENT REGISTRY ─────────────────────────── -->
+                    <Border Style="{StaticResource SectionCardBorderStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="EXECUTOR DOCUMENT REGISTRY" Style="{StaticResource SectionTitleStyle}"/>
+
+                            <ItemsControl ItemsSource="{Binding ExecutorDocuments}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding FileName}"
+                                                       FontFamily="{StaticResource SansFont}" FontSize="12"
+                                                       Foreground="#16181C"/>
+                                                    <TextBlock Text="{Binding DocumentType}"
+                                                       FontFamily="{StaticResource MonoFont}" FontSize="10"
+                                                       Foreground="#6B6E76" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding UploadedAt, StringFormat='Uploaded {0:dd MMM yyyy}'}"
+                                                       FontFamily="{StaticResource MonoFont}" FontSize="10"
+                                                       Foreground="#9CA0A8"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="View"
+                                                    Command="{Binding DataContext.ViewDocumentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding DocumentId}"
+                                                    Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
+                                                    Foreground="#16181C" Padding="10,5"
+                                                    FontFamily="{StaticResource SansFont}" FontSize="11"
+                                                    Cursor="Hand" Margin="0,0,6,0"/>
+                                                    <Button Content="Delete"
+                                                    Command="{Binding DataContext.DeleteDocumentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding DocumentId}"
+                                                    Background="Transparent" BorderThickness="0"
+                                                    Foreground="#8B3A3A" Padding="10,5"
+                                                    FontFamily="{StaticResource SansFont}" FontSize="11"
+                                                    Cursor="Hand"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="No documents uploaded yet."
+                               FontFamily="{StaticResource SansFont}" FontSize="12"
+                               Foreground="#9CA0A8" Margin="0,8,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ExecutorDocuments.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
             </TabItem>
+
 
             <!-- ================================================= -->
             <!-- HEIRS -->

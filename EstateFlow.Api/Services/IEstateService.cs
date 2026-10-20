@@ -218,4 +218,19 @@ public interface IEstateService
     Task<List<AuditEntryDto>> GetAuditTrailAsync(
         Guid estateId,
         int take);
+
+    Task UpdateExecutorAsync(
+    Guid estateId,
+    Guid executorId,
+    UpdateExecutorRequest request);
+
+    Task<string> UploadExecutorLettersAsync(
+        Guid estateId,
+        Guid executorId,
+        IFormFile file);
+
+    Task UpsertAdvertisementAsync(
+        Guid estateId,
+        UpsertAdvertisementRequest request);
+
 }
