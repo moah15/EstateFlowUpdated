@@ -1,0 +1,65 @@
+﻿using System.Collections.ObjectModel;
+using EstateFlow.Core.Dtos;
+using EstateFlow.Desktop.Services;
+
+namespace EstateFlow.Desktop.Mvvm;
+
+public class DocumentScanViewModel : BaseViewModel
+{
+    private readonly IApiClient _apiClient;
+
+    public ObservableCollection<ScannedDocumentDto> Documents { get; } = new();
+
+    private string _headerText = "Document Registry";
+    public string HeaderText
+    {
+        get => _headerText;
+        set => SetProperty(ref _headerText, value);
+    }
+
+    private string _statusMessage = string.Empty;
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        set => SetProperty(ref _statusMessage, value);
+    }
+
+    public DocumentScanViewModel(IApiClient apiClient)
+    {
+        _apiClient = apiClient;
+    }
+
+    public void ShowNoEstateSelected()
+    {
+        Documents.Clear();
+        HeaderText = "Document Registry";
+        StatusMessage = "Open an estate from the Dashboard first to view its documents.";
+    }
+
+    public async Task LoadAsync(Guid estateId)
+    {
+        StatusMessage = "Loading documents...";
+        try
+        {
+            var estate = await _apiClient.GetEstateAsync(estateId);
+            if (estate is null)
+            {
+                StatusMessage = "Estate not found.";
+                return;
+            }
+
+            HeaderText = $"File {estate.FileNumber} · {estate.Deceased?.FullName}";
+            Documents.Clear();
+            foreach (var doc in estate.ScannedDocuments)
+                Documents.Add(doc);
+
+            StatusMessage = Documents.Count == 0
+                ? "No scanned documents yet. (Upload not yet wired to Blob Storage — see Section 6.1 of the documentation.)"
+                : string.Empty;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Could not load documents: {ex.Message}";
+        }
+    }
+}

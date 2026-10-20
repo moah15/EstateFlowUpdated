@@ -1,0 +1,205 @@
+﻿<UserControl x:Class="EstateFlow.Desktop.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="#F5F4F1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Header ── -->
+        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="28,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Monthly Reports" FontFamily="{StaticResource SerifFont}" FontSize="20" FontWeight="SemiBold" Foreground="#16181C"/>
+                    <TextBlock Text="Manage automated monthly estate reports sent to controllers." FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#9CA0A8" Margin="0,3,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#3F5B45"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasError}" Value="True">
+                                        <Setter Property="Fill" Value="#9C3A3A"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding StatusMessage}" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#6B6E76" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ── Summary bar ── -->
+        <Border Grid.Row="1" Background="#22252A" Padding="28,10">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
+                    <TextBlock Text="{Binding Settings.Count}" FontFamily="{StaticResource MonoFont}" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                    <TextBlock Text=" estates" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#9CA0A8" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
+                    <TextBlock Text="{Binding ActiveCount}" FontFamily="{StaticResource MonoFont}" FontSize="15" FontWeight="Bold" Foreground="#9C7A3C" VerticalAlignment="Center"/>
+                    <TextBlock Text=" active" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#9CA0A8" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding PausedCount}" FontFamily="{StaticResource MonoFont}" FontSize="15" FontWeight="Bold" Foreground="#6B6E76" VerticalAlignment="Center"/>
+                    <TextBlock Text=" paused" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#6B6E76" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ── List ── -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- Column headers -->
+                <Border Background="#EDECEA" Padding="28,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="FILE NO." FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#9CA0A8"/>
+                        <TextBlock Grid.Column="1" Text="DECEASED" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#9CA0A8"/>
+                        <TextBlock Grid.Column="2" Text="CONTROLLER" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#9CA0A8"/>
+                        <TextBlock Grid.Column="3" Text="LAST SENT" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#9CA0A8"/>
+                        <TextBlock Grid.Column="4" Text="STATUS" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#9CA0A8"/>
+                    </Grid>
+                </Border>
+
+                <!-- Estate rows -->
+                <ItemsControl ItemsSource="{Binding Settings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FAFAF8"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid Margin="28,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="110"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- File number -->
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding FileNumber}"
+                                               FontFamily="{StaticResource MonoFont}"
+                                               FontSize="12" Foreground="#16181C"
+                                               VerticalAlignment="Center"/>
+
+                                    <!-- Deceased name + status -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DeceasedFullName}"
+                                                   FontFamily="{StaticResource SerifFont}"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#16181C"/>
+                                    </StackPanel>
+
+                                    <!-- Controller -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding ControllerName}"
+                                               FontFamily="{StaticResource MonoFont}"
+                                               FontSize="11" Foreground="#6B6E76"
+                                               VerticalAlignment="Center"/>
+
+                                    <!-- Last sent -->
+                                    <TextBlock Grid.Column="3"
+                                               FontFamily="{StaticResource MonoFont}"
+                                               FontSize="11" Foreground="#6B6E76"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding LastSentDate, StringFormat='dd MMM yyyy'}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding LastSentDate}" Value="{x:Null}">
+                                                        <Setter Property="Text" Value="Never sent"/>
+                                                        <Setter Property="Foreground" Value="#C0B090"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Status badge + toggle button -->
+                                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="3" Padding="7,3" Margin="0,0,8,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E8F0EA"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                            <Setter Property="Background" Value="#F0EEEA"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="ACTIVE"/>
+                                                        <Setter Property="Foreground" Value="#3F5B45"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                                <Setter Property="Text" Value="PAUSED"/>
+                                                                <Setter Property="Foreground" Value="#9CA0A8"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Button Command="{Binding DataContext.ToggleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent" BorderThickness="0"
+                                                Cursor="Hand" VerticalAlignment="Center">
+                                            <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="18" FontWeight="Bold" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="⏸"/>
+                                                        <Setter Property="Foreground" Value="#C8C4BC"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                                <Setter Property="Text" Value="▶"/>
+                                                                <Setter Property="Foreground" Value="#9C7A3C"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                    </StackPanel>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

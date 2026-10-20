@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AzureFunctionsVersion>v4</AzureFunctionsVersion>
+		<OutputType>Exe</OutputType>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<!-- ASP.NET Core Framework -->
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+		<!-- Application Insights -->
+		<PackageReference Include="Microsoft.ApplicationInsights.WorkerService"
+						  Version="2.23.0" />
+
+		<!-- Azure Functions Worker -->
+		<PackageReference Include="Microsoft.Azure.Functions.Worker"
+						  Version="2.50.0" />
+
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights"
+						  Version="2.50.0" />
+
+		<!-- HTTP Support -->
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore"
+						  Version="2.1.0" />
+
+		<!-- Timer Trigger Support -->
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer"
+						  Version="4.3.1" />
+
+		<!-- Functions SDK -->
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk"
+						  Version="2.0.6" />
+
+		<!-- Entity Framework Core SQL Server
+         Must match EstateFlow.Data -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"
+						  Version="8.0.31" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+
+		<ProjectReference Include="..\EstateFlow.Core\EstateFlow.Core.csproj" />
+
+		<ProjectReference Include="..\EstateFlow.Data\EstateFlow.Data.csproj" />
+
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Fonts\IBMPlexMono-Medium.ttf" />
+    <None Remove="Fonts\IBMPlexMono-Regular.ttf" />
+    <None Remove="Fonts\SourceSerif4-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EstateFlow.Core\EstateFlow.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\IBMPlexMono-Medium.ttf" />
+    <Resource Include="Fonts\IBMPlexMono-Regular.ttf" />
+    <Resource Include="Fonts\Inter-Medium.ttf" />
+    <Resource Include="Fonts\Inter-Regular.ttf" />
+    <Resource Include="Fonts\Source Serif 4-Medium.ttf" />
+    <Resource Include="Fonts\SourceSerif4-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Converters\NullToVisibilityConverter.cs">
+      <Generator>MSBuild:Compile</Generator>
+    </Compile>
+    <Compile Update="Mvvm\ReportsViewModel.cs">
+      <Generator>MSBuild:Compile</Generator>
+    </Compile>
+    <Compile Update="Views\EstateDetailView.xaml.cs">
+      <Generator>MSBuild:Compile</Generator>
+    </Compile>
+  </ItemGroup>
+
+</Project>

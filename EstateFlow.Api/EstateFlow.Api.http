@@ -1,0 +1,6 @@
+@EstateFlow.Api_HostAddress = http://localhost:5149
+
+GET {{EstateFlow.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

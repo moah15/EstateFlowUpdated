@@ -1,0 +1,285 @@
+<UserControl x:Class="EstateFlow.Desktop.Views.EstatesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+
+        <Style x:Key="ChipButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#16181C"/>
+            <Setter Property="BorderBrush" Value="#E4E2DD"/>
+            <Setter Property="FontFamily" Value="{StaticResource SansFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="14" Padding="13,5">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter Property="Background" Value="#6E2A2A"/>
+                    <Setter Property="BorderBrush" Value="#6E2A2A"/>
+                    <Setter Property="Foreground" Value="#F5F4F1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="EstateRowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}"
+                                BorderBrush="#EFEDE8" BorderThickness="0,0,0,1" Padding="20,11">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#F5F4F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ColumnHeader" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="#9CA0A8"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="#F5F4F1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="28,24,28,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Estates" FontFamily="{StaticResource SerifFont}" FontSize="24" Foreground="#16181C"/>
+                <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#6B6E76" Margin="0,4,0,0">
+                    <Run Text="{Binding ResultSummary, Mode=OneWay}"/>
+                    <Run Text="{Binding StatusMessage, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+            <Button Grid.Column="1" Content="+ New Estate" Command="{Binding NewEstateCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}" FontSize="12" Padding="16,8" VerticalAlignment="Top"/>
+        </Grid>
+
+        <!-- Search / filter / sort -->
+        <StackPanel Grid.Row="1" Margin="28,0,28,12">
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="⌕" FontSize="16" Foreground="#9CA0A8"
+                                   VerticalAlignment="Center" Margin="12,0,6,2"/>
+
+                        <TextBox Grid.Column="1" x:Name="SearchBox"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0" Background="Transparent" Padding="0,10"
+                                 FontFamily="{StaticResource SansFont}" FontSize="13" Foreground="#16181C"
+                                 VerticalContentAlignment="Center"/>
+
+                        <TextBlock Grid.Column="1" Text="Search by name, file number, status, controller or date…"
+                                   IsHitTestVisible="False" FontFamily="{StaticResource SansFont}" FontSize="13"
+                                   Foreground="#9CA0A8" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <Button Grid.Column="2" Content="✕" Command="{Binding ClearSearchCommand}"
+                                Background="Transparent" BorderThickness="0" Foreground="#9CA0A8"
+                                Cursor="Hand" Padding="12,0" FontSize="12">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="SORT" FontFamily="{StaticResource MonoFont}" FontSize="10"
+                               Foreground="#9CA0A8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SortOption}"
+                              MinWidth="190" Padding="8,7" FontFamily="{StaticResource SansFont}" FontSize="12"/>
+                </StackPanel>
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding StatusChips}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource ChipButtonStyle}"
+                                Command="{Binding DataContext.SelectStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding Name}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding Count}" Margin="7,0,0,0" Opacity="0.6"
+                                           FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- Table -->
+        <Border Grid.Row="2" Margin="28,0,28,24" Background="#FFFFFF" BorderBrush="#E4E2DD"
+                BorderThickness="1" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Background="#F0EEE9">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="130"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="DECEASED" Style="{StaticResource ColumnHeader}" Margin="68,9,0,9"/>
+                    <TextBlock Grid.Column="1" Text="FILE NO." Style="{StaticResource ColumnHeader}" Margin="0,9"/>
+                    <TextBlock Grid.Column="2" Text="STATUS" Style="{StaticResource ColumnHeader}" Margin="0,9"/>
+                    <TextBlock Grid.Column="3" Text="DATE OF DEATH" Style="{StaticResource ColumnHeader}" Margin="0,9"/>
+                    <TextBlock Grid.Column="4" Text="DIARY" Style="{StaticResource ColumnHeader}" Margin="0,9"/>
+                    <TextBlock Grid.Column="5" Text="CONTROLLER" Style="{StaticResource ColumnHeader}" Margin="0,9,20,9"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding Estates}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource EstateRowButtonStyle}"
+                                            Command="{Binding DataContext.OpenEstateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding EstateId}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="130"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                <Border Width="34" Height="34" CornerRadius="17"
+                                                        Background="{Binding StatusTint}" Margin="0,0,14,0">
+                                                    <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource SansFont}"
+                                                               FontSize="12" FontWeight="SemiBold" Foreground="{Binding StatusColor}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding DeceasedName}" FontFamily="{StaticResource SerifFont}"
+                                                           FontSize="14" Foreground="#16181C" VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding FileNumber}" FontFamily="{StaticResource MonoFont}"
+                                                       FontSize="12" Foreground="#16181C" VerticalAlignment="Center"/>
+
+                                            <Border Grid.Column="2" CornerRadius="10" Padding="9,2" Background="{Binding StatusTint}"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Status}" FontFamily="{StaticResource MonoFont}"
+                                                           FontSize="10" Foreground="{Binding StatusColor}"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DateOfDeathText}" FontFamily="{StaticResource MonoFont}"
+                                                           FontSize="12" Foreground="#16181C"/>
+                                                <TextBlock Text="{Binding DaysText}" FontFamily="{StaticResource SansFont}"
+                                                           FontSize="11" Foreground="#9CA0A8"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="4" Text="{Binding DiaryText}" FontFamily="{StaticResource SansFont}"
+                                                       FontSize="12" Foreground="{Binding DiaryColor}" VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Column="5" Text="{Binding Controller}" FontFamily="{StaticResource SansFont}"
+                                                       FontSize="12" Foreground="#6B6E76" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,0,20,0"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel HorizontalAlignment="Center" Margin="0,40">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEmpty}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="No estates match your search" FontFamily="{StaticResource SerifFont}"
+                                       FontSize="16" Foreground="#16181C" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Try a different name or file number, or clear the status filter."
+                                       FontFamily="{StaticResource SansFont}" FontSize="12" Foreground="#6B6E76"
+                                       HorizontalAlignment="Center" Margin="0,4,0,12"/>
+                            <Button Content="Clear search" Command="{Binding ClearSearchCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" FontSize="12" Padding="14,7"
+                                    HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

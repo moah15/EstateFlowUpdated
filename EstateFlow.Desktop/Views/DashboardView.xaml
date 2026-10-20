@@ -1,0 +1,284 @@
+﻿<UserControl x:Class="EstateFlow.Desktop.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#E4E2DD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="20,18"/>
+        </Style>
+
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="#9CA0A8"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource SerifFont}"/>
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="Foreground" Value="#16181C"/>
+        </Style>
+
+        <Style x:Key="EstateRowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#EFEDE8" BorderThickness="0,0,0,1"
+                                CornerRadius="4" Padding="6,10">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#F5F4F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LinkButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#6E2A2A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource SansFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style x:Key="OutlineButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#16181C"/>
+            <Setter Property="BorderBrush" Value="#E4E2DD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource SansFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#F5F4F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- One estate row: avatar, name + file no., status pill, diary -->
+        <DataTemplate x:Key="EstateRowTemplate">
+            <Button Style="{StaticResource EstateRowButtonStyle}"
+                    Command="{Binding DataContext.OpenEstateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding EstateId}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="34" Height="34" CornerRadius="17"
+                            Background="{Binding StatusTint}" Margin="0,0,12,0">
+                        <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource SansFont}"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{Binding StatusColor}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DeceasedName}" FontFamily="{StaticResource SerifFont}"
+                                   FontSize="14" Foreground="#16181C" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#6B6E76"
+                                   Margin="0,2,0,0">
+                            <Run Text="{Binding FileNumber, Mode=OneWay}"/>
+                            <Run Text="  ·  "/>
+                            <Run Text="{Binding DaysText, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <Border CornerRadius="10" Padding="9,2" Background="{Binding StatusTint}"
+                                HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding Status}" FontFamily="{StaticResource MonoFont}"
+                                       FontSize="10" Foreground="{Binding StatusColor}"/>
+                        </Border>
+                        <TextBlock Text="{Binding DiaryText}" FontFamily="{StaticResource SansFont}"
+                                   FontSize="11" Foreground="{Binding DiaryColor}"
+                                   HorizontalAlignment="Right" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F4F1">
+        <Grid Margin="28,24,28,28">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding Greeting}" FontFamily="{StaticResource SerifFont}"
+                               FontSize="24" Foreground="#16181C"/>
+                    <TextBlock Text="{Binding TodayText}" FontFamily="{StaticResource MonoFont}"
+                               FontSize="11" Foreground="#6B6E76" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding StatusMessage}" FontFamily="{StaticResource MonoFont}"
+                               FontSize="11" Foreground="#9C7A3C" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button Content="Refresh" Command="{Binding LoadEstatesCommand}"
+                            Style="{StaticResource OutlineButtonStyle}" Margin="0,0,8,0"/>
+                    <Button Content="+ New Estate" Command="{Binding NewEstateCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}" FontSize="12" Padding="16,8"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- KPI cards -->
+            <UniformGrid Grid.Row="1" Columns="4" Margin="-6,0,-6,14">
+                <Border Style="{StaticResource CardBorder}" Margin="6,0">
+                    <StackPanel>
+                        <Border Width="28" Height="3" Background="#16181C" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="TOTAL ESTATES" Style="{StaticResource CardTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding TotalEstates}" Style="{StaticResource KpiValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource CardBorder}" Margin="6,0">
+                    <StackPanel>
+                        <Border Width="28" Height="3" Background="#6E2A2A" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="ACTIVE" Style="{StaticResource CardTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding ActiveEstates}" Style="{StaticResource KpiValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource CardBorder}" Margin="6,0">
+                    <StackPanel>
+                        <Border Width="28" Height="3" Background="#3F5B45" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="FINALISED" Style="{StaticResource CardTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding FinalisedEstates}" Style="{StaticResource KpiValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource CardBorder}" Margin="6,0">
+                    <StackPanel>
+                        <Border Width="28" Height="3" Background="#9C7A3C" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="OPEN DIARY ITEMS" Style="{StaticResource CardTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding OpenDiaryTotal}" Style="{StaticResource KpiValue}"/>
+                        <Button Content="Open diary →" Command="{Binding OpenDiaryCommand}"
+                                Style="{StaticResource LinkButtonStyle}" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Status breakdown + needs attention -->
+            <Grid Grid.Row="2" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,7,0">
+                    <StackPanel>
+                        <TextBlock Text="ESTATES BY STATUS" Style="{StaticResource CardTitle}"/>
+                        <ItemsControl ItemsSource="{Binding StatusBreakdown}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,12">
+                                        <Grid>
+                                            <TextBlock Text="{Binding Name}" FontFamily="{StaticResource SansFont}"
+                                                       FontSize="12" Foreground="#16181C"/>
+                                            <TextBlock Text="{Binding Count}" FontFamily="{StaticResource MonoFont}"
+                                                       FontSize="12" Foreground="#6B6E76" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                        <ProgressBar Value="{Binding Percent, Mode=OneWay}" Maximum="100" Height="6"
+                                                     Margin="0,5,0,0" Foreground="{Binding Color}"
+                                                     Background="#ECEAE5" BorderThickness="0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="No estates captured yet." FontFamily="{StaticResource SansFont}"
+                                   FontSize="12" Foreground="#9CA0A8">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasEstates}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Margin="7,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="NEEDS ATTENTION" Style="{StaticResource CardTitle}"/>
+                        <ItemsControl ItemsSource="{Binding NeedsAttention}"
+                                      ItemTemplate="{StaticResource EstateRowTemplate}"/>
+                        <TextBlock Text="Nothing needs attention – no open diary items on active estates."
+                                   FontFamily="{StaticResource SansFont}" FontSize="12" Foreground="#3F5B45"
+                                   Margin="0,4,0,0" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasAttention}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Recent estates -->
+            <Border Grid.Row="3" Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,4">
+                        <TextBlock Text="RECENT ESTATES" Style="{StaticResource CardTitle}" Margin="0"/>
+                        <Button Content="View all estates →" Command="{Binding ViewAllEstatesCommand}"
+                                Style="{StaticResource LinkButtonStyle}" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding RecentEstates}"
+                                  ItemTemplate="{StaticResource EstateRowTemplate}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,47 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# .NET publish
+publish/
+artifacts/
+
+# Local configuration / secrets
+local.settings.json
+appsettings.Development.json
+appsettings.Production.json
+.env
+
+# Certificates / secrets
+*.pfx
+*.p12
+*.cer
+*.key
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# Rider / VS Code optional
+.idea/
+.vscode/

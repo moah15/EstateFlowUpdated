@@ -1,0 +1,270 @@
+<UserControl x:Class="EstateFlow.Desktop.Views.EstateFormView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="#F5F4F1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="24,12">
+            <TextBlock Text="{Binding HeaderText}" FontFamily="{StaticResource SerifFont}" FontSize="17" Foreground="#16181C"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4" Padding="20,18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="FILE REFERENCE" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <TextBlock Text="File Number" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding FileNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Master's Reference" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding MastersReference, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Date of Death" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding DateOfDeath}" Padding="8,6" Margin="0,0,0,14"/>
+
+                        <CheckBox Content="Dutiable Estate" IsChecked="{Binding IsDutiable}"
+                                  FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <StackPanel Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisConverter}}">
+                            <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                            <ComboBox SelectedValuePath="Content" SelectedValue="{Binding EstateStatus}" Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                                <ComboBoxItem Content="Reported"/>
+                                <ComboBoxItem Content="In Progress"/>
+                                <ComboBoxItem Content="Finalised"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4" Padding="20,18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="AGENT &amp; L&amp;D SETTINGS" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <CheckBox Content="Firm acts as agent for the nominated executor"
+                                  IsChecked="{Binding FirmActsAsAgent}"
+                                  FontFamily="{StaticResource SansFont}"
+                                  FontSize="12"
+                                  Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Agent / Administrator Name" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AgentName, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Agent Reference" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AgentReference, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Agent Email" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AgentEmail, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Agent Phone" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AgentPhone, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Administration Expenses (R)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AdministrationExpenses, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,4"/>
+
+                        <TextBlock Text="Administration expenses are used in the draft Liquidation &amp; Distribution Account calculation."
+                                   FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4" Padding="20,18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="ACCOUNT &amp; FEE SETTINGS" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <TextBlock Text="Account Type" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <ComboBox SelectedValuePath="Content" SelectedValue="{Binding AccountType}" Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                            <ComboBoxItem Content="First and Final"/>
+                            <ComboBoxItem Content="Interim"/>
+                        </ComboBox>
+
+                        <CheckBox Content="Testate (valid will)" IsChecked="{Binding IsTestate}"
+                                  FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Date of Account" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding DateOfAccount}" Padding="8,6" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Place of Account (signed at)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding PlaceOfAccount, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Master's Office" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <ComboBox IsEditable="True" Text="{Binding MastersOffice, UpdateSourceTrigger=PropertyChanged}"
+                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                            <ComboBoxItem Content="Bloemfontein"/>
+                            <ComboBoxItem Content="Cape Town"/>
+                            <ComboBoxItem Content="Durban"/>
+                            <ComboBoxItem Content="Johannesburg"/>
+                            <ComboBoxItem Content="Kimberley"/>
+                            <ComboBoxItem Content="Mahikeng"/>
+                            <ComboBoxItem Content="Makhanda"/>
+                            <ComboBoxItem Content="Mbombela"/>
+                            <ComboBoxItem Content="Mthatha"/>
+                            <ComboBoxItem Content="Pietermaritzburg"/>
+                            <ComboBoxItem Content="Polokwane"/>
+                            <ComboBoxItem Content="Pretoria"/>
+                            <ComboBoxItem Content="Thohoyandou"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Letters of Executorship Date" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding LettersOfExecutorshipDate}" Padding="8,6" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Executor's Fee (%)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding ExecutorFeePercentage, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <CheckBox Content="VAT registered (add VAT to executor's fee)" IsChecked="{Binding IsVatRegistered}"
+                                  FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="VAT Rate (%)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding VatRate, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Master's Fee (R)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding MastersFee, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Estate Duty Primary Rebate (R)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding EstateDutyRebate, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Estate Duty Rate (%)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding EstateDutyRate, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,4"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4" Padding="20,18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="ESTATE BANK &amp; ESTATE DUTY DETAILS" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <TextBlock Text="Source of Estate (agent, if commission is paid)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding SourceOfEstate, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Estate Bank Name" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding EstateBankName, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Branch Code" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding EstateBankBranchCode, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Estate Bank Account Number" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding EstateBankAccountNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <CheckBox Content="Estate will have multiple L&amp;D accounts" IsChecked="{Binding HasMultipleLdAccounts}"
+                                  FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Number of Previous Spouses of the Deceased" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding PreviousSpousesCount, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Section 4A Rebate Used in Previous Spouse's Estate (R)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding PreviousSpouseRebateUsed, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,4"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#FFFFFF" BorderBrush="#E4E2DD" BorderThickness="1" CornerRadius="4" Padding="20,18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="PARTICULARS OF THE DECEASED" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <TextBlock Text="First Name" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedFirstName, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="13" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Middle Name(s)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedMiddleName, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="13" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Surname" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedSurname, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="13" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedIdNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Place of Death" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedPlaceOfDeath, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Marital Status" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <ComboBox SelectedValuePath="Content" SelectedValue="{Binding DeceasedMaritalStatus}"
+                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                            <ComboBoxItem Content="Single"/>
+                            <ComboBoxItem Content="Married"/>
+                            <ComboBoxItem Content="Divorced"/>
+                            <ComboBoxItem Content="Widowed"/>
+                            <ComboBoxItem Content="Life Partnership"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Matrimonial Regime" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <ComboBox SelectedValuePath="Content" SelectedValue="{Binding DeceasedMatrimonialRegime}"
+                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                            <ComboBoxItem Content="In community of property"/>
+                            <ComboBoxItem Content="Out of community of property (with accrual)"/>
+                            <ComboBoxItem Content="Out of community of property (no accrual)"/>
+                            <ComboBoxItem Content="Customary marriage"/>
+                            <ComboBoxItem Content="Not applicable"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Spouse Full Names" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedSpouseFullName, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Spouse Identity Number" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedSpouseIdNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Will Date" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding DeceasedWillDate}" Padding="8,6" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Will Location (where the original is kept)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding DeceasedWillLocation, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+                        <TextBlock Text="Gender" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <ComboBox SelectedValuePath="Content" SelectedValue="{Binding DeceasedGender}"
+                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14">
+                            <ComboBoxItem Content="Male"/>
+                            <ComboBoxItem Content="Female"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Date of Birth" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding DeceasedDateOfBirth}" Padding="8,6" Margin="0,0,0,14"/>
+
+                        <CheckBox Content="Deceased lived in South Africa (for estate duty)" IsChecked="{Binding DeceasedLivedInSouthAfrica}"
+                                  FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Codicil Date (leave blank if none)" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding DeceasedCodicilDate}" Padding="8,6" Margin="0,0,0,14"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#8B3A3A" FontFamily="{StaticResource SansFont}"
+                           FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Save" Command="{Binding SaveCommand}"
+                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                            Padding="16,9" FontFamily="{StaticResource SansFont}" FontSize="13" Cursor="Hand" Margin="0,0,10,0"/>
+                    <Button Content="Cancel" Command="{Binding CancelCommand}"
+                            Background="Transparent" Foreground="#6B6E76" BorderThickness="1" BorderBrush="#E4E2DD"
+                            Padding="16,9" FontFamily="{StaticResource SansFont}" FontSize="13" Cursor="Hand"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
