@@ -1028,77 +1028,9 @@ public class EstateService : IEstateService
         await _repository.SaveAsync(
             estate);
     }
-    public async Task UpdateExecutorAsync(
-       Guid estateId,
-       Guid executorId,
-       UpdateExecutorRequest request)
-    {
-        var estate = await _estateRepository.GetByIdAsync(estateId)
-            ?? throw new InvalidOperationException($"Estate {estateId} not found.");
+    
 
-        var executor = estate.Executors.FirstOrDefault(e => e.ExecutorId == executorId)
-            ?? throw new InvalidOperationException($"Executor {executorId} not found.");
 
-        executor.FullName = request.FullName;
-        executor.IdNumber = request.IdNumber;
-        executor.Role = request.Role;
-        executor.Email = request.Email;
-        executor.Phone = request.Phone;
-        executor.Address = request.Address;
-        executor.MastersOffice = request.MastersOffice;
-        executor.LettersOfExecutorshipRef = request.LettersOfExecutorshipRef;
-        executor.LettersOfExecutorshipDate = request.LettersOfExecutorshipDate;
-
-        await _estateRepository.UpdateExecutorAsync(executor);
-    }
-
-    public async Task<string> UploadExecutorLettersAsync(
-        Guid estateId,
-        Guid executorId,
-        IFormFile file)
-    {
-        var estate = await _estateRepository.GetByIdAsync(estateId)
-            ?? throw new InvalidOperationException($"Estate {estateId} not found.");
-
-        var executor = estate.Executors.FirstOrDefault(e => e.ExecutorId == executorId)
-            ?? throw new InvalidOperationException($"Executor {executorId} not found.");
-
-        // Upload to Azure Blob — reuse your existing document upload pattern
-        var blobName = $"estates/{estateId}/executors/{executorId}/letters/{file.FileName}";
-        await using var stream = file.OpenReadStream();
-        var url = await _blobService.UploadAsync(blobName, stream, file.ContentType);
-
-        executor.LettersDocumentUrl = url;
-        executor.LettersDocumentName = file.FileName;
-        await _estateRepository.UpdateExecutorAsync(executor);
-
-        return url;
-    }
-
-    public async Task UpsertAdvertisementAsync(
-        Guid estateId,
-        UpsertAdvertisementRequest request)
-    {
-        var estate = await _estateRepository.GetByIdAsync(estateId)
-            ?? throw new InvalidOperationException($"Estate {estateId} not found.");
-
-        var ad = new EstateAdvertisement
-        {
-            EstateId = estateId,
-            AdvertisementType = request.AdvertisementType,
-            GazetteNumber = request.GazetteNumber,
-            GazetteDate = request.GazetteDate,
-            NewspaperName = request.NewspaperName,
-            NewspaperDate = request.NewspaperDate,
-            ClaimDeadline = request.ClaimDeadline,
-            ObjectionsReceived = request.ObjectionsReceived,
-            Notes = request.Notes,
-        };
-
-        await _estateRepository.UpsertAdvertisementAsync(ad);
-    }
-
-*/
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Also UPDATE GetEstateAsync mapping to include new executor fields + ads:

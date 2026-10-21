@@ -74,7 +74,7 @@ public class EstateRepository : IEstateRepository
         await _context.SaveChangesAsync();
     }
 
-*/
+
 
     public async Task<List<Estate>> GetAllAsync()
     {

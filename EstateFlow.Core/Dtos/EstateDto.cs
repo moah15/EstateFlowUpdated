@@ -56,6 +56,8 @@ public class EstateDto
     public List<ScannedDocumentDto> ScannedDocuments { get; set; } = new();
     public List<CashbookEntryDto> CashbookEntries { get; set; } = new();
     public List<ChecklistItemDto> ChecklistItems { get; set; } = new();
+    
+    
 }
 
 public class EstateControllerDto
@@ -102,8 +104,12 @@ public class ExecutorDto
     
     public string? LettersDocumentUrl { get; set; }
     public string? LettersDocumentName { get; set; }
-   
     
+   
+    public string? LettersOfExecutorshipRef { get; set; }
+   
+
+
 }
 
 public class BeneficiaryDto
