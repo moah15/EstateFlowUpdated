@@ -3,6 +3,7 @@ using EstateFlow.Api.Services.Storage;
 using EstateFlow.Core.Dtos;
 using EstateFlow.Core.Interfaces;
 using EstateFlow.Core.Models;
+using EstateFlow.Core.Validation;
 using EstateFlow.Data.Repositories;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Http;
@@ -357,9 +358,28 @@ public class EstateService : IEstateService
                     .OrderBy(x => x.SortOrder)
                     .ThenBy(x => x.Title)
                     .Select(MapChecklist)
+                    .ToList(),
+
+            Advertisements =
+                estate.Advertisements
+                    .Select(MapAdvertisement)
                     .ToList()
         };
     }
+
+    private static AdvertisementDto MapAdvertisement(EstateAdvertisement x) =>
+        new()
+        {
+            AdvertisementId = x.AdvertisementId,
+            AdvertisementType = x.AdvertisementType,
+            GazetteNumber = x.GazetteNumber,
+            GazetteDate = x.GazetteDate,
+            NewspaperName = x.NewspaperName,
+            NewspaperDate = x.NewspaperDate,
+            ClaimDeadline = x.ClaimDeadline,
+            ObjectionsReceived = x.ObjectionsReceived,
+            Notes = x.Notes
+        };
 
     // =====================================================
     // GET ESTATES
@@ -730,6 +750,15 @@ public class EstateService : IEstateService
                 "Deceased full name is required.");
         }
 
+        var deceasedIdError =
+            SaIdNumber.Validate(
+                request.DeceasedIdNumber,
+                request.DeceasedDateOfBirth,
+                "Deceased");
+
+        if (deceasedIdError is not null)
+            throw new ArgumentException(deceasedIdError);
+
         var estate =
             new Estate
             {
@@ -821,6 +850,15 @@ public class EstateService : IEstateService
     Guid estateId,
     UpdateEstateRequest request)
     {
+        var deceasedIdError =
+            SaIdNumber.Validate(
+                request.DeceasedIdNumber,
+                request.DeceasedDateOfBirth,
+                "Deceased");
+
+        if (deceasedIdError is not null)
+            throw new ArgumentException(deceasedIdError);
+
         var estate =
             await _repository.GetByIdAsync(
                 estateId)
@@ -1122,34 +1160,31 @@ public class EstateService : IEstateService
         Guid estateId,
         UpsertAdvertisementRequest request)
     {
-        var estate =
-            await _repository.GetByIdAsync(estateId)
-            ?? throw new InvalidOperationException(
-                $"Estate {estateId} not found.");
-
-        var advert =
-            estate.Advertisements
-                .FirstOrDefault(x => x.AdvertisementType == request.AdvertisementType);
-
-        if (advert is null)
+        if (request.AdvertisementType is not ("Section29" or "Section35"))
         {
-            advert = new EstateAdvertisement
-            {
-                EstateId = estateId,
-                AdvertisementType = request.AdvertisementType
-            };
-            estate.Advertisements.Add(advert);
+            throw new ArgumentException(
+                "Advertisement type must be Section29 or Section35.");
         }
 
-        advert.GazetteNumber = request.GazetteNumber;
-        advert.GazetteDate = request.GazetteDate;
-        advert.NewspaperName = request.NewspaperName;
-        advert.NewspaperDate = request.NewspaperDate;
-        advert.ClaimDeadline = request.ClaimDeadline;
-        advert.ObjectionsReceived = request.ObjectionsReceived;
-        advert.Notes = request.Notes;
+        if (!await _repository.ExistsAsync(estateId))
+        {
+            throw new InvalidOperationException(
+                $"Estate {estateId} not found.");
+        }
 
-        await _repository.SaveAsync(estate);
+        await _repository.UpsertAdvertisementAsync(
+            new EstateAdvertisement
+            {
+                EstateId = estateId,
+                AdvertisementType = request.AdvertisementType,
+                GazetteNumber = request.GazetteNumber,
+                GazetteDate = request.GazetteDate,
+                NewspaperName = request.NewspaperName,
+                NewspaperDate = request.NewspaperDate,
+                ClaimDeadline = request.ClaimDeadline,
+                ObjectionsReceived = request.ObjectionsReceived,
+                Notes = request.Notes
+            });
     }
 
     // =====================================================
@@ -1172,6 +1207,15 @@ public class EstateService : IEstateService
             throw new ArgumentException(
                 "A valid beneficiary email address is required.");
         }
+
+        var heirIdError =
+            SaIdNumber.Validate(
+                request.IdNumber,
+                request.DateOfBirth,
+                "Heir");
+
+        if (heirIdError is not null)
+            throw new ArgumentException(heirIdError);
 
         if (!await _repository.ExistsAsync(
                 estateId))
@@ -2007,6 +2051,300 @@ public class EstateService : IEstateService
         ("Closure", "Close the estate bank account", null, null),
         ("Closure", "File the final papers with the Master and close the file", null, null),
     };
+
+    // =====================================================
+    // EDIT EXISTING RECORDS
+    // =====================================================
+
+    private async Task<Estate> LoadEstateForEditAsync(Guid estateId) =>
+        await _repository.GetByIdAsync(estateId)
+        ?? throw new InvalidOperationException(
+            $"Estate {estateId} not found.");
+
+    public async Task UpdateBeneficiaryAsync(
+        Guid estateId,
+        Guid beneficiaryId,
+        CreateBeneficiaryRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.FullName))
+            throw new ArgumentException("Beneficiary full name is required.");
+
+        if (!IsValidEmail(request.Email))
+            throw new ArgumentException("A valid beneficiary email address is required.");
+
+        var idError = SaIdNumber.Validate(request.IdNumber, request.DateOfBirth, "Heir");
+        if (idError is not null)
+            throw new ArgumentException(idError);
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var b =
+            estate.Beneficiaries.FirstOrDefault(x => x.BeneficiaryId == beneficiaryId)
+            ?? throw new InvalidOperationException($"Beneficiary {beneficiaryId} not found.");
+
+        b.FullName = request.FullName.Trim();
+        b.IdNumber = request.IdNumber?.Trim() ?? string.Empty;
+        b.Relationship = request.Relationship?.Trim() ?? string.Empty;
+        b.HeirType = request.HeirType?.Trim() ?? string.Empty;
+        b.Email = request.Email.Trim();
+        b.FirstName = request.FirstName?.Trim();
+        b.MiddleName = request.MiddleName?.Trim();
+        b.Surname = request.Surname?.Trim();
+        b.RelationshipDescription = request.RelationshipDescription?.Trim();
+        b.DateOfBirth = request.DateOfBirth;
+        b.Gender = request.Gender;
+        b.MaritalStatus = request.MaritalStatus;
+        b.WillClause = request.WillClause?.Trim();
+        b.CashLegacyAmount = request.CashLegacyAmount;
+        b.ResidueNumerator = request.ResidueNumerator;
+        b.ResidueDenominator = request.ResidueDenominator;
+        b.AdvancesPaid = request.AdvancesPaid;
+        b.IsSurvivingSpouse = request.IsSurvivingSpouse;
+        b.IsMinor = request.IsMinor;
+        b.GuardianOrTrustee = request.GuardianOrTrustee?.Trim();
+        b.IsPredeceased = request.IsPredeceased;
+        b.IsUltimateBeneficiaryPreviousEstate = request.IsUltimateBeneficiaryPreviousEstate;
+        b.BareDominiumFraction = request.BareDominiumFraction?.Trim();
+        b.DisplayOrder = request.DisplayOrder;
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateMovableAssetAsync(
+        Guid estateId,
+        Guid assetId,
+        CreateMovableAssetRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Description))
+            throw new ArgumentException("Asset description is required.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var asset =
+            estate.MovableAssets.FirstOrDefault(x => x.AssetId == assetId)
+            ?? throw new InvalidOperationException($"Movable asset {assetId} not found.");
+
+        asset.Description = request.Description;
+        asset.AssetType = request.AssetType;
+        asset.Value = request.Value;
+        asset.IsVehicle = request.IsVehicle;
+        asset.RegistrationNumber = request.RegistrationNumber;
+        asset.VinNumber = request.VinNumber;
+        asset.Make = request.Make;
+        asset.AssetCategory = request.AssetCategory;
+        asset.ValuerName = request.ValuerName?.Trim();
+        asset.ValuationDate = request.ValuationDate;
+        asset.AwardedToBeneficiaryIds = request.AwardedToBeneficiaryIds;
+        asset.IsSpecialBequest = request.IsSpecialBequest;
+        asset.IsSoldOrReducedToCash = request.IsSoldOrReducedToCash;
+        asset.SaleProceeds = request.SaleProceeds;
+        asset.SaleDate = request.SaleDate;
+        asset.BuyerName = request.BuyerName?.Trim();
+        asset.ShareCompany = request.ShareCompany?.Trim();
+        asset.NumberOfShares = request.NumberOfShares;
+        asset.ShareClass = request.ShareClass?.Trim();
+        asset.PriceCentsPerShare = request.PriceCentsPerShare;
+        asset.CumulativeDividend = request.CumulativeDividend;
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateImmovablePropertyAsync(
+        Guid estateId,
+        Guid assetId,
+        CreateImmovablePropertyRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Description))
+            throw new ArgumentException("Property description is required.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var p =
+            estate.ImmovableProperties.FirstOrDefault(x => x.AssetId == assetId)
+            ?? throw new InvalidOperationException($"Immovable property {assetId} not found.");
+
+        p.Description = request.Description;
+        p.TitleDeedNumber = request.TitleDeedNumber;
+        p.MunicipalValue = request.MunicipalValue;
+        p.PropertyType = request.PropertyType;
+        p.ErfNumber = request.ErfNumber?.Trim();
+        p.Township = request.Township?.Trim();
+        p.Division = request.Division?.Trim();
+        p.Province = request.Province;
+        p.ExtentSquareMetres = request.ExtentSquareMetres;
+        p.StreetAddress = request.StreetAddress?.Trim();
+        p.SchemeName = request.SchemeName?.Trim();
+        p.SectionNumber = request.SectionNumber?.Trim();
+        p.ExclusiveUseAreas = request.ExclusiveUseAreas?.Trim();
+        p.ShareNumerator = request.ShareNumerator;
+        p.ShareDenominator = request.ShareDenominator;
+        p.MarketValue = request.MarketValue;
+        p.ValuerName = request.ValuerName?.Trim();
+        p.ValuationDate = request.ValuationDate;
+        p.AwardedToBeneficiaryIds = request.AwardedToBeneficiaryIds;
+        p.IsSpecialBequest = request.IsSpecialBequest;
+        p.IsSoldByEstate = request.IsSoldByEstate;
+        p.SalePrice = request.SalePrice;
+        p.SaleDate = request.SaleDate;
+        p.PurchaserName = request.PurchaserName?.Trim();
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateFinancialClaimAsync(
+        Guid estateId,
+        Guid claimId,
+        CreateFinancialClaimRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.InstitutionName))
+            throw new ArgumentException("Institution name is required.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var c =
+            estate.FinancialClaims.FirstOrDefault(x => x.ClaimId == claimId)
+            ?? throw new InvalidOperationException($"Financial claim {claimId} not found.");
+
+        c.InstitutionName = request.InstitutionName;
+        c.InstitutionAddress = request.InstitutionAddress;
+        c.AccountReference = request.AccountReference;
+        c.Value = request.Value;
+        c.ClaimType = request.ClaimType;
+        c.IsInFavourOfEstate = request.IsInFavourOfEstate;
+        c.AccruedInterest = request.AccruedInterest;
+        c.ValuationDate = request.ValuationDate;
+        c.AwardedToBeneficiaryIds = request.AwardedToBeneficiaryIds;
+        c.IsSpecialBequest = request.IsSpecialBequest;
+        c.IsCollectedAsCash = request.IsCollectedAsCash;
+        c.CollectedAmount = request.CollectedAmount;
+        c.CollectedDate = request.CollectedDate;
+        c.IsCreditLifeInsurance = request.IsCreditLifeInsurance;
+        c.LinkedLiabilityNote = request.LinkedLiabilityNote;
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateLiabilityAsync(
+        Guid estateId,
+        Guid liabilityId,
+        CreateLiabilityRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.CreditorName))
+            throw new ArgumentException("Creditor name is required.");
+
+        if (request.Amount < 0)
+            throw new ArgumentException("Liability amount cannot be negative.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var l =
+            estate.Liabilities.FirstOrDefault(x => x.LiabilityId == liabilityId)
+            ?? throw new InvalidOperationException($"Liability {liabilityId} not found.");
+
+        l.CreditorName = request.CreditorName.Trim();
+        l.Description = request.Description?.Trim();
+        l.Amount = request.Amount;
+        l.Category = request.Category;
+        l.AccountReference = request.AccountReference?.Trim();
+        l.InterestAfterDeath = request.InterestAfterDeath;
+        l.Status = string.IsNullOrWhiteSpace(request.Status) ? "Admitted" : request.Status;
+        l.DateLodged = request.DateLodged;
+        l.SecuredAgainst = request.SecuredAgainst?.Trim();
+        l.IsTakenOverByHeir = request.IsTakenOverByHeir;
+        l.IsPaid = request.IsPaid;
+        l.AmountPaid = request.IsPaid ? request.AmountPaid : 0;
+        l.DatePaid = request.IsPaid ? request.DatePaid : null;
+        l.IsCoveredByCreditLife = request.IsCoveredByCreditLife;
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateCashbookEntryAsync(
+        Guid estateId,
+        Guid entryId,
+        CreateCashbookEntryRequest request)
+    {
+        if (request.Amount <= 0m)
+            throw new ArgumentException("The amount must be greater than zero.");
+
+        if (!CashbookTypes.All.Contains(request.EntryType))
+            throw new ArgumentException("Choose a valid cashbook entry type.");
+
+        if (string.IsNullOrWhiteSpace(request.Description) &&
+            string.IsNullOrWhiteSpace(request.Category))
+            throw new ArgumentException("Enter a description or a category.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var entry =
+            estate.CashbookEntries.FirstOrDefault(x => x.EntryId == entryId)
+            ?? throw new InvalidOperationException($"Cashbook entry {entryId} not found.");
+
+        entry.EntryDate = request.EntryDate.Date;
+        entry.EntryType = request.EntryType;
+        entry.Category = (request.Category ?? string.Empty).Trim();
+        entry.Description = (request.Description ?? string.Empty).Trim();
+        entry.PayerOrPayee = string.IsNullOrWhiteSpace(request.PayerOrPayee) ? null : request.PayerOrPayee.Trim();
+        entry.Reference = string.IsNullOrWhiteSpace(request.Reference) ? null : request.Reference.Trim();
+        entry.Amount = Math.Round(request.Amount, 2);
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateChecklistItemAsync(
+        Guid estateId,
+        Guid itemId,
+        CreateChecklistItemRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+            throw new ArgumentException("Enter a title for the task.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var item =
+            estate.ChecklistItems.FirstOrDefault(x => x.ItemId == itemId)
+            ?? throw new InvalidOperationException($"Checklist item {itemId} not found.");
+
+        item.Title = request.Title.Trim();
+
+        if (!string.IsNullOrWhiteSpace(request.Category))
+            item.Category = request.Category.Trim();
+
+        item.DueDate = request.DueDate?.Date;
+        item.Reference = string.IsNullOrWhiteSpace(request.Reference) ? null : request.Reference.Trim();
+        item.Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
+
+        await _repository.SaveAsync(estate);
+    }
+
+    public async Task UpdateDiaryEntryAsync(
+        Guid estateId,
+        Guid diaryId,
+        CreateDiaryEntryRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Note))
+            throw new ArgumentException("Diary note is required.");
+
+        if (request.DueDate == default)
+            throw new ArgumentException("Diary due date is required.");
+
+        var notifyBy =
+            new[] { "Email", "InApp", "Both" }
+                .FirstOrDefault(x => string.Equals(x, request.NotifyBy, StringComparison.OrdinalIgnoreCase))
+            ?? throw new ArgumentException("Notification method must be Email, InApp or Both.");
+
+        var estate = await LoadEstateForEditAsync(estateId);
+
+        var entry =
+            estate.DiaryEntries.FirstOrDefault(x => x.DiaryId == diaryId)
+            ?? throw new InvalidOperationException($"Diary entry {diaryId} not found.");
+
+        entry.Note = request.Note.Trim();
+        entry.DueDate = request.DueDate;
+        entry.NotifyBy = notifyBy;
+
+        await _repository.SaveAsync(estate);
+    }
 
     // =====================================================
     // AUDIT TRAIL

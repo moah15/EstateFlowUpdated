@@ -144,7 +144,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/progress-stages",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task UpdateProgressStageAsync(
@@ -195,7 +197,9 @@ public class ApiClient : IApiClient
                 $"api/diary/estate/{estateId}",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task UpdateDiaryEntryStatusAsync(
@@ -403,7 +407,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/beneficiaries",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteBeneficiaryAsync(
@@ -430,7 +436,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/movable-assets",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteMovableAssetAsync(
@@ -457,7 +465,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/immovable-properties",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteImmovablePropertyAsync(
@@ -484,7 +494,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/financial-claims",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteFinancialClaimAsync(
@@ -511,7 +523,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/liabilities",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteLiabilityAsync(
@@ -716,21 +730,6 @@ public class ApiClient : IApiClient
     }
 
     // ─────────────────────────────────────────────
-    // Audit trail
-    // ─────────────────────────────────────────────
-
-    public async Task<List<AuditEntryDto>> GetAuditTrailAsync(
-        Guid estateId,
-        int take)
-    {
-        var result =
-            await _httpClient.GetFromJsonAsync<List<AuditEntryDto>>(
-                $"api/estates/{estateId}/audit?take={take}");
-
-        return result ?? new List<AuditEntryDto>();
-    }
-
-    // ─────────────────────────────────────────────
     // Scanned Documents
     // ─────────────────────────────────────────────
 
@@ -823,6 +822,48 @@ public class ApiClient : IApiClient
     }
 
     // ─────────────────────────────────────────────
+    // Edit existing records
+    // ─────────────────────────────────────────────
+
+    public Task UpdateBeneficiaryAsync(Guid estateId, Guid beneficiaryId, CreateBeneficiaryRequest request) =>
+        PutAsync($"api/estates/{estateId}/beneficiaries/{beneficiaryId}", request,
+            "The heir could not be saved");
+
+    public Task UpdateMovableAssetAsync(Guid estateId, Guid assetId, CreateMovableAssetRequest request) =>
+        PutAsync($"api/estates/{estateId}/movable-assets/{assetId}", request,
+            "The asset could not be saved");
+
+    public Task UpdateImmovablePropertyAsync(Guid estateId, Guid assetId, CreateImmovablePropertyRequest request) =>
+        PutAsync($"api/estates/{estateId}/immovable-properties/{assetId}", request,
+            "The property could not be saved");
+
+    public Task UpdateFinancialClaimAsync(Guid estateId, Guid claimId, CreateFinancialClaimRequest request) =>
+        PutAsync($"api/estates/{estateId}/financial-claims/{claimId}", request,
+            "The claim could not be saved");
+
+    public Task UpdateLiabilityAsync(Guid estateId, Guid liabilityId, CreateLiabilityRequest request) =>
+        PutAsync($"api/estates/{estateId}/liabilities/{liabilityId}", request,
+            "The liability could not be saved");
+
+    public Task UpdateCashbookEntryAsync(Guid estateId, Guid entryId, CreateCashbookEntryRequest request) =>
+        PutAsync($"api/estates/{estateId}/cashbook/{entryId}", request,
+            "The cashbook entry could not be saved");
+
+    public Task UpdateChecklistItemAsync(Guid estateId, Guid itemId, CreateChecklistItemRequest request) =>
+        PutAsync($"api/estates/{estateId}/checklist/{itemId}", request,
+            "The task could not be saved");
+
+    public Task UpdateDiaryEntryAsync(Guid estateId, Guid diaryId, CreateDiaryEntryRequest request) =>
+        PutAsync($"api/diary/estate/{estateId}/{diaryId}", request,
+            "The diary entry could not be saved");
+
+    private async Task PutAsync<T>(string url, T request, string fallbackMessage)
+    {
+        var response = await _httpClient.PutAsJsonAsync(url, request);
+        await EnsureSuccessWithApiMessageAsync(response, fallbackMessage);
+    }
+
+    // ─────────────────────────────────────────────
     // Helpers
     // ─────────────────────────────────────────────
 
@@ -852,6 +893,29 @@ public class ApiClient : IApiClient
                     message =
                         messageElement.GetString()
                         ?? string.Empty;
+                }
+                else if (json.RootElement.TryGetProperty(
+                             "errors",
+                             out var errorsElement))
+                {
+                    var details = new List<string>();
+
+                    var items =
+                        errorsElement.ValueKind == JsonValueKind.Object
+                            ? errorsElement.EnumerateObject().Select(p => p.Value)
+                            : errorsElement.ValueKind == JsonValueKind.Array
+                                ? errorsElement.EnumerateArray()
+                                : Enumerable.Empty<JsonElement>();
+
+                    foreach (var item in items)
+                    {
+                        if (item.ValueKind == JsonValueKind.Array)
+                            details.AddRange(item.EnumerateArray().Select(e => e.ToString()));
+                        else
+                            details.Add(item.ToString());
+                    }
+
+                    message = string.Join(" ", details.Where(d => !string.IsNullOrWhiteSpace(d)));
                 }
             }
             catch (JsonException)

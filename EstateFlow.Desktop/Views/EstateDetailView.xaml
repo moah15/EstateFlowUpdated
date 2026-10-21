@@ -827,8 +827,7 @@
                                          TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
 
                                 <!-- Save button -->
-                                <Button Content="{Binding ExecutorFormTitle}"
-                                        ContentStringFormat="Save {0}"
+                                <Button Content="{Binding ExecutorSaveLabel}"
                                         Command="{Binding SaveExecutorDetailCommand}"
                                         Background="#6E2A2A" Foreground="White" BorderThickness="0"
                                         Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
@@ -1030,7 +1029,7 @@
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
 
-                                <TextBlock Text="ADD HEIR / BENEFICIARY"
+                                <TextBlock Text="{Binding BeneficiaryFormTitle}"
                                            Style="{StaticResource SectionTitleStyle}"/>
 
                                 <TextBlock Text="First Name" Style="{StaticResource FieldLabelStyle}"/>
@@ -1158,16 +1157,10 @@
                                          Text="{Binding NewBeneficiaryBareDominiumFraction, UpdateSourceTrigger=PropertyChanged}"
                                          FontFamily="{StaticResource MonoFont}"/>
 
-                                <Button Content="+ Add Beneficiary"
-                                        Command="{Binding AddBeneficiaryCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding BeneficiarySaveLabel}" Command="{Binding AddBeneficiaryCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelBeneficiaryEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingBeneficiary, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -1226,7 +1219,9 @@
                                                 </StackPanel>
                                             </StackPanel>
 
-                                            <Button Grid.Column="1"
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+<Button Content="Edit" Command="{Binding DataContext.EditBeneficiaryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button
                                                     Content="Remove"
                                                     Command="{Binding DataContext.DeleteBeneficiaryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding BeneficiaryId}"
@@ -1235,8 +1230,8 @@
                                                     Foreground="#8B3A3A"
                                                     FontFamily="{StaticResource SansFont}"
                                                     FontSize="11"
-                                                    Cursor="Hand"
-                                                    VerticalAlignment="Top"/>
+                                                    Cursor="Hand"/>
+</StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -1259,7 +1254,7 @@
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
 
-                                <TextBlock Text="ADD MOVABLE ASSET"
+                                <TextBlock Text="{Binding MovableFormTitle}"
                                            Style="{StaticResource SectionTitleStyle}"/>
                                 <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}"/>
                                 <ComboBox SelectedValuePath="Content" SelectedValue="{Binding NewAssetCategory}"
@@ -1387,16 +1382,10 @@
                                              Text="{Binding NewAssetBuyerName, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
-                                <Button Content="+ Add Asset"
-                                        Command="{Binding AddMovableAssetCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding MovableSaveLabel}" Command="{Binding AddMovableAssetCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelMovableEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingMovable, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -1508,7 +1497,8 @@
                                                         Cursor="Hand"
                                                         Margin="0,0,0,8"/>
 
-                                                <Button Content="Remove"
+                                                <Button Content="Edit" Command="{Binding DataContext.EditMovableAssetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button Content="Remove"
                                                         Command="{Binding DataContext.DeleteMovableAssetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding AssetId}"
                                                         Background="Transparent"
@@ -1540,7 +1530,7 @@
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
 
-                                <TextBlock Text="ADD IMMOVABLE PROPERTY" Style="{StaticResource SectionTitleStyle}"/>
+                                <TextBlock Text="{Binding ImmovableFormTitle}" Style="{StaticResource SectionTitleStyle}"/>
                                 <TextBlock Text="Property Type" Style="{StaticResource FieldLabelStyle}"/>
                                 <ComboBox SelectedValuePath="Content" SelectedValue="{Binding NewPropertyType}" Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Conventional"/>
@@ -1618,16 +1608,10 @@
                                     <TextBox Style="{StaticResource QuickAddTextBox}" Text="{Binding NewPropertyPurchaserName, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
-                                <Button Content="+ Add Property"
-                                        Command="{Binding AddImmovablePropertyCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding ImmovableSaveLabel}" Command="{Binding AddImmovablePropertyCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelImmovableEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingImmovable, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -1722,7 +1706,9 @@
 
                                             </StackPanel>
 
-                                            <Button Grid.Column="1"
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+<Button Content="Edit" Command="{Binding DataContext.EditImmovablePropertyCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button
                                                     Content="Remove"
                                                     Command="{Binding DataContext.DeleteImmovablePropertyCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding AssetId}"
@@ -1731,8 +1717,8 @@
                                                     Foreground="#8B3A3A"
                                                     FontFamily="{StaticResource SansFont}"
                                                     FontSize="11"
-                                                    Cursor="Hand"
-                                                    VerticalAlignment="Top"/>
+                                                    Cursor="Hand"/>
+</StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -1755,7 +1741,7 @@
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
 
-                                <TextBlock Text="ADD FINANCIAL CLAIM" Style="{StaticResource SectionTitleStyle}"/>
+                                <TextBlock Text="{Binding ClaimFormTitle}" Style="{StaticResource SectionTitleStyle}"/>
                                 <TextBlock Text="Institution Name" Style="{StaticResource FieldLabelStyle}"/>
                                 <TextBox Style="{StaticResource QuickAddTextBox}" Text="{Binding NewClaimInstitutionName, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="Institution Address" Style="{StaticResource FieldLabelStyle}"/>
@@ -1801,16 +1787,10 @@
                                 </ItemsControl>
                                 <CheckBox Content="Special bequest" IsChecked="{Binding NewClaimIsSpecialBequest}" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,8"/>
 
-                                <Button Content="+ Add Claim"
-                                        Command="{Binding AddFinancialClaimCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding ClaimSaveLabel}" Command="{Binding AddFinancialClaimCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelClaimEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingClaim, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -1928,7 +1908,8 @@
                                                         Cursor="Hand"
                                                         Margin="0,0,0,8"/>
 
-                                                <Button Content="Remove"
+                                                <Button Content="Edit" Command="{Binding DataContext.EditFinancialClaimCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button Content="Remove"
                                                         Command="{Binding DataContext.DeleteFinancialClaimCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding ClaimId}"
                                                         Background="Transparent"
@@ -1960,7 +1941,7 @@
 
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="ADD LIABILITY" Style="{StaticResource SectionTitleStyle}"/>
+                                <TextBlock Text="{Binding LiabilityFormTitle}" Style="{StaticResource SectionTitleStyle}"/>
                                 <TextBlock Text="Creditor Name" Style="{StaticResource FieldLabelStyle}"/>
                                 <TextBox Style="{StaticResource QuickAddTextBox}" Text="{Binding NewLiabilityCreditorName, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}"/>
@@ -2006,16 +1987,10 @@
                                     <DatePicker SelectedDate="{Binding NewLiabilityDatePaid}" Padding="8,6" Margin="0,0,0,12"/>
                                 </StackPanel>
 
-                                <Button Content="+ Add Liability"
-                                        Command="{Binding AddLiabilityCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding LiabilitySaveLabel}" Command="{Binding AddLiabilityCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelLiabilityEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingLiability, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -2069,7 +2044,9 @@
 
                                             </StackPanel>
 
-                                            <Button Grid.Column="1"
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+<Button Content="Edit" Command="{Binding DataContext.EditLiabilityCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button
                                                     Content="Remove"
                                                     Command="{Binding DataContext.DeleteLiabilityCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding LiabilityId}"
@@ -2079,6 +2056,7 @@
                                                     FontFamily="{StaticResource SansFont}"
                                                     FontSize="11"
                                                     Cursor="Hand"/>
+</StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -2098,40 +2076,96 @@
             <!-- ================================================= -->
             <TabItem Header="Cashbook">
                 <ScrollViewer Padding="20">
-                    <StackPanel MaxWidth="900" HorizontalAlignment="Left">
+                    <StackPanel MaxWidth="1000" HorizontalAlignment="Left">
 
-                        <!-- Add Entry -->
+                        <!-- Add / edit a receipt or payment -->
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="ADD CASHBOOK ENTRY" Style="{StaticResource SectionTitleStyle}"/>
-                                <Grid Margin="0,8,0,0">
+                                <TextBlock Text="{Binding CashbookFormTitle}" Style="{StaticResource SectionTitleStyle}"/>
+
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="180"/>
-                                        <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="16"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
-                                    <ComboBox Grid.Column="0" ItemsSource="{Binding EntryTypes}"
-                                              SelectedValue="{Binding NewEntryType}"
-                                              FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,6,0"/>
-                                    <TextBox Grid.Column="1" Text="{Binding NewEntryCategory, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource QuickAddTextBox}" Margin="0,0,6,0"
-                                             Tag="Category"/>
-                                    <TextBox Grid.Column="2" Text="{Binding NewEntryDescription, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource QuickAddTextBox}" Margin="0,0,6,0"
-                                             Tag="Description / Payee"/>
-                                    <TextBox Grid.Column="3" Text="{Binding NewEntryAmountText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource QuickAddTextBox}" Margin="0,0,6,0"
-                                             Tag="Amount (R)"/>
-                                    <DatePicker Grid.Column="4" SelectedDate="{Binding NewEntryDate}"
-                                                FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,6,0"/>
-                                    <Button Grid.Column="5" Content="Add"
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Entry Type" Style="{StaticResource FieldLabelStyle}"/>
+                                        <ComboBox ItemsSource="{Binding EntryTypeOptions}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Value"
+                                                  SelectedValue="{Binding NewEntryType}"
+                                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Date" Style="{StaticResource FieldLabelStyle}"/>
+                                        <DatePicker SelectedDate="{Binding NewEntryDate}" Padding="8,6" Margin="0,0,0,12"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}"/>
+                                        <ComboBox IsEditable="True"
+                                                  ItemsSource="{Binding CategorySuggestions}"
+                                                  Text="{Binding NewEntryCategory, UpdateSourceTrigger=PropertyChanged}"
+                                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{Binding PartyLabel}" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding NewEntryPayerOrPayee, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Description" Style="{StaticResource FieldLabelStyle}"/>
+                                <TextBox Style="{StaticResource QuickAddTextBox}"
+                                         Text="{Binding NewEntryDescription, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Reference (receipt / deposit / cheque no.)" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding NewEntryReference, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontFamily="{StaticResource MonoFont}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{Binding AmountLabel}" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding NewEntryAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontFamily="{StaticResource MonoFont}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                    <Button Content="{Binding CashbookSaveLabel}"
                                             Command="{Binding AddCashbookEntryCommand}"
                                             Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                            Padding="10,6" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"/>
-                                </Grid>
+                                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                            Cursor="Hand" Margin="0,0,10,0"/>
+                                    <Button Content="Cancel"
+                                            Command="{Binding CancelCashbookEditCommand}"
+                                            Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1"
+                                            Foreground="#16181C" Padding="14,7"
+                                            FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"
+                                            Visibility="{Binding IsEditingCashbook, Converter={StaticResource BoolToVisConverter}}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -2147,7 +2181,7 @@
                                         <ComboBox ItemsSource="{Binding CashbookTypeOptions}"
                                                   SelectedValue="{Binding CashbookTypeFilter}"
                                                   FontFamily="{StaticResource SansFont}" FontSize="12"
-                                                  Width="120" Margin="0,0,8,0"/>
+                                                  Width="190" Margin="0,0,8,0"/>
                                         <TextBox Text="{Binding CashbookSearch, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource QuickAddTextBox}" Width="180" Tag="Search..." Margin="0,0,8,0"/>
                                         <CheckBox Content="Unreconciled only"
@@ -2201,51 +2235,123 @@
 
                         <!-- Cashbook rows -->
                         <Border Style="{StaticResource SectionCardBorderStyle}">
-                            <ItemsControl ItemsSource="{Binding FilteredCashbook}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="#E8E6E0" BorderThickness="0,0,0,1" Padding="0,8">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="80"/>
-                                                    <ColumnDefinition Width="130"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="30"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                </Grid.ColumnDefinitions>
+                            <StackPanel>
 
+                                <!-- Column headings -->
+                                <Border BorderBrush="#E4E2DD" BorderThickness="0,0,0,1" Padding="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="95"/>
+                                            <ColumnDefinition Width="190"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="170"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="DATE" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"/>
+                                        <TextBlock Grid.Column="1" Text="TYPE / CATEGORY" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"/>
+                                        <TextBlock Grid.Column="2" Text="DESCRIPTION" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"/>
+                                        <TextBlock Grid.Column="3" Text="RECEIVED FROM / PAID TO" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"/>
+                                        <TextBlock Grid.Column="4" Text="AMOUNT" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="ACTIONS" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
 
-                                                <TextBlock Grid.Column="2" Text="{Binding Category}"
-                                                           FontFamily="{StaticResource SansFont}" FontSize="11" VerticalAlignment="Center" Foreground="#6B6E76"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding Description}"
-                                                           FontFamily="{StaticResource SansFont}" FontSize="11" VerticalAlignment="Center"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="4" Text="{Binding Amount, StringFormat='R {0:N2}'}"
-                                                           FontFamily="{StaticResource MonoFont}" FontSize="12" VerticalAlignment="Center"
-                                                           HorizontalAlignment="Right" FontWeight="SemiBold"/>
-                                                <TextBlock Grid.Column="5" Text="{Binding IsReconciled, Converter={StaticResource BoolToVisConverter}}"
-                                                           FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"
-                                                           HorizontalAlignment="Center" Foreground="#3F5B45"/>
-                                                <Button Grid.Column="6" Content="{Binding IsReconciled, Converter={StaticResource ReconLabelConverter}}"
-                                                        Command="{Binding DataContext.ToggleReconciledCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Background="Transparent" BorderBrush="#9C7A3C" BorderThickness="1"
-                                                        Foreground="#9C7A3C" Padding="4,2" FontSize="10"
-                                                        FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="4,0"/>
-                                                <Button Grid.Column="7" Content="Del"
-                                                        Command="{Binding DataContext.DeleteCashbookEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Background="Transparent" BorderBrush="#CC4444" BorderThickness="1"
-                                                        Foreground="#CC4444" Padding="4,2" FontSize="10"
-                                                        FontFamily="{StaticResource SansFont}" Cursor="Hand"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                <ItemsControl ItemsSource="{Binding FilteredCashbook}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#E8E6E0" BorderThickness="0,0,0,1" Padding="0,9">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="95"/>
+                                                        <ColumnDefinition Width="190"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="150"/>
+                                                        <ColumnDefinition Width="110"/>
+                                                        <ColumnDefinition Width="170"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding EntryDate, StringFormat='{}{0:dd MMM yyyy}'}"
+                                                               FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Top"/>
+
+                                                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding EntryType}"
+                                                                   FontFamily="{StaticResource SansFont}" FontSize="11" FontWeight="SemiBold"
+                                                                   TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding Category}"
+                                                                   FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
+                                                                   TextWrapping="Wrap"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding Description}"
+                                                                   FontFamily="{StaticResource SansFont}" FontSize="11"
+                                                                   TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding ReconciledText}"
+                                                                   FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="3" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding PayerOrPayee}"
+                                                                   FontFamily="{StaticResource SansFont}" FontSize="11"
+                                                                   TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding Reference, StringFormat='Ref: {0}'}"
+                                                                   FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Reference}" Value="{x:Null}">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="4" Text="{Binding AmountText}"
+                                                               FontFamily="{StaticResource MonoFont}" FontSize="12" FontWeight="SemiBold"
+                                                               HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="#6E2A2A"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsReceipt}" Value="True">
+                                                                        <Setter Property="Foreground" Value="#3F5B45"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+
+                                                    <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                        <Button Content="{Binding IsReconciled, Converter={StaticResource ReconLabelConverter}}"
+                                                                Command="{Binding DataContext.ToggleReconciledCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" BorderBrush="#9C7A3C" BorderThickness="1"
+                                                                Foreground="#9C7A3C" Padding="4,2" FontSize="10"
+                                                                FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
+                                                        <Button Content="Edit"
+                                                                Command="{Binding DataContext.EditCashbookEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1"
+                                                                Foreground="#16181C" Padding="4,2" FontSize="10"
+                                                                FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
+                                                        <Button Content="Del"
+                                                                Command="{Binding DataContext.DeleteCashbookEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" BorderBrush="#CC4444" BorderThickness="1"
+                                                                Foreground="#CC4444" Padding="4,2" FontSize="10"
+                                                                FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
@@ -2283,22 +2389,36 @@
 
 
 
-                        <!-- Add custom task -->
+                        <!-- Add / edit task -->
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="ADD CUSTOM TASK" Style="{StaticResource SectionTitleStyle}"/>
-                                <Grid Margin="0,6,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="80"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Text="{Binding NewChecklistTask, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource QuickAddTextBox}" Tag="Task description" Margin="0,0,8,0"/>
-                                    <Button Grid.Column="1" Content="Add"
+                                <TextBlock Text="{Binding ChecklistFormTitle}" Style="{StaticResource SectionTitleStyle}"/>
+
+                                <TextBlock Text="Task" Style="{StaticResource FieldLabelStyle}"/>
+                                <TextBox Text="{Binding NewChecklistTask, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource QuickAddTextBox}"/>
+
+                                <TextBlock Text="Due Date (optional)" Style="{StaticResource FieldLabelStyle}"/>
+                                <DatePicker SelectedDate="{Binding NewChecklistDueDate}" Padding="8,6" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="Notes (optional)" Style="{StaticResource FieldLabelStyle}"/>
+                                <TextBox Text="{Binding NewChecklistNotes, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource QuickAddTextBox}"
+                                         AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"/>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button Content="{Binding ChecklistSaveLabel}"
                                             Command="{Binding AddChecklistItemCommand}"
                                             Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                                            Padding="10,6" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"/>
-                                </Grid>
+                                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                            Cursor="Hand" Margin="0,0,10,0"/>
+                                    <Button Content="Cancel"
+                                            Command="{Binding CancelChecklistEditCommand}"
+                                            Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1"
+                                            Foreground="#16181C" Padding="14,7"
+                                            FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand"
+                                            Visibility="{Binding IsEditingChecklist, Converter={StaticResource BoolToVisConverter}}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -2332,20 +2452,20 @@
                                                            FontFamily="{StaticResource MonoFont}" FontSize="14"
                                                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                 <StackPanel Grid.Column="1" Margin="8,0">
-                                                    <TextBlock Text="{Binding TaskName}"
+                                                    <TextBlock Text="{Binding Title}"
                                                                FontFamily="{StaticResource SansFont}" FontSize="12"
                                                                TextWrapping="Wrap"/>
-                                                    <TextBlock FontFamily="{StaticResource SansFont}" FontSize="10"
-           Text="{Binding DueDate, StringFormat='Due: {0:dd MMM yyyy}'}">
+                                                    <TextBlock Text="{Binding Category}"
+                                                               FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="#9CA0A8"/>
+                                                    <TextBlock Text="{Binding DetailText}"
+                                                               FontFamily="{StaticResource SansFont}" FontSize="10"
+                                                               TextWrapping="Wrap">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground" Value="#6B6E76"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsOverdue}" Value="True">
                                                                         <Setter Property="Foreground" Value="#9C3A3A"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding DueDate}" Value="{x:Null}">
-                                                                        <Setter Property="Visibility" Value="Collapsed"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -2383,6 +2503,12 @@
                                                             Background="Transparent" BorderBrush="#9C7A3C" BorderThickness="1"
                                                             Foreground="#9C7A3C" Padding="4,2" FontSize="10"
                                                             FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
+                                                    <Button Content="Edit"
+                                                            Command="{Binding DataContext.EditChecklistItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1"
+                                                            Foreground="#16181C" Padding="4,2" FontSize="10"
+                                                            FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
                                                     <Button Content="Del"
                                                             Command="{Binding DataContext.DeleteChecklistItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                             CommandParameter="{Binding}"
@@ -2390,52 +2516,6 @@
                                                             Foreground="#CC4444" Padding="4,2" FontSize="10"
                                                             FontFamily="{StaticResource SansFont}" Cursor="Hand" Margin="2,0"/>
                                                 </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- ================================================= -->
-            <!-- HISTORY (AUDIT) -->
-            <!-- ================================================= -->
-            <TabItem Header="History">
-                <ScrollViewer Padding="20">
-                    <StackPanel MaxWidth="900" HorizontalAlignment="Left">
-                        <Border Style="{StaticResource SectionCardBorderStyle}">
-                            <StackPanel>
-                                <TextBlock Text="AUDIT HISTORY" Style="{StaticResource SectionTitleStyle}"/>
-                                <TextBox Text="{Binding AuditSearch, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource QuickAddTextBox}" Width="260"
-                                         Tag="Search history..." HorizontalAlignment="Left" Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource SectionCardBorderStyle}">
-                            <ItemsControl ItemsSource="{Binding FilteredAudit}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="#E8E6E0" BorderThickness="0,0,0,1" Padding="0,7">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="140"/>
-                                                    <ColumnDefinition Width="140"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat='{}{0:dd MMM yy HH:mm}'}"
-                                                           FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding ChangedBy}"
-                                                           FontFamily="{StaticResource SansFont}" FontSize="11" VerticalAlignment="Center" Foreground="#6B6E76"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding Action}"
-                                                           FontFamily="{StaticResource SansFont}" FontSize="11" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding Details}"
-                                                           FontFamily="{StaticResource SansFont}" FontSize="11" VerticalAlignment="Center"
-                                                           TextTrimming="CharacterEllipsis" Foreground="#6B6E76"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -2623,7 +2703,7 @@
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
 
-                                <TextBlock Text="ADD DIARY ENTRY"
+                                <TextBlock Text="{Binding DiaryFormTitle}"
                                            Style="{StaticResource SectionTitleStyle}"/>
 
                                 <TextBlock Text="Note"
@@ -2659,16 +2739,10 @@
                                     <ComboBoxItem Content="Both"/>
                                 </ComboBox>
 
-                                <Button Content="+ Add Diary Entry"
-                                        Command="{Binding AddDiaryEntryCommand}"
-                                        Background="#6E2A2A"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Padding="14,7"
-                                        FontFamily="{StaticResource SansFont}"
-                                        FontSize="12"
-                                        Cursor="Hand"
-                                        HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+    <Button Content="{Binding DiarySaveLabel}" Command="{Binding AddDiaryEntryCommand}" Background="#6E2A2A" Foreground="White" BorderThickness="0" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Margin="0,0,10,0"/>
+    <Button Content="Cancel" Command="{Binding CancelDiaryEditCommand}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12" Cursor="Hand" Visibility="{Binding IsEditingDiary, Converter={StaticResource BoolToVisConverter}}"/>
+</StackPanel>
 
                             </StackPanel>
                         </Border>
@@ -2751,7 +2825,8 @@
                                                         Cursor="Hand"
                                                         Margin="0,0,0,7"/>
 
-                                                <Button Content="Remove"
+                                                <Button Content="Edit" Command="{Binding DataContext.EditDiaryEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderBrush="#E4E2DD" BorderThickness="1" Foreground="#16181C" FontFamily="{StaticResource SansFont}" FontSize="11" Padding="10,5" Cursor="Hand" Margin="0,0,0,6"/>
+<Button Content="Remove"
                                                         Command="{Binding DataContext.DeleteDiaryEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding DiaryId}"
                                                         Background="Transparent"

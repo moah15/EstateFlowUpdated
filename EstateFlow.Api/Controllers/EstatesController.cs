@@ -154,6 +154,13 @@ public class EstatesController : ControllerBase
 
             return NoContent();
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
         catch (InvalidOperationException ex)
         {
             return NotFound(new
@@ -397,6 +404,10 @@ public class EstatesController : ControllerBase
                 request);
 
             return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
@@ -876,6 +887,83 @@ public class EstatesController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // Edit existing records
+    // ─────────────────────────────────────────────
+
+    [HttpPut("{estateId:guid}/beneficiaries/{beneficiaryId:guid}")]
+    public Task<ActionResult> UpdateBeneficiary(
+        Guid estateId,
+        Guid beneficiaryId,
+        [FromBody] CreateBeneficiaryRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateBeneficiaryAsync(estateId, beneficiaryId, request));
+
+    [HttpPut("{estateId:guid}/movable-assets/{assetId:guid}")]
+    public Task<ActionResult> UpdateMovableAsset(
+        Guid estateId,
+        Guid assetId,
+        [FromBody] CreateMovableAssetRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateMovableAssetAsync(estateId, assetId, request));
+
+    [HttpPut("{estateId:guid}/immovable-properties/{assetId:guid}")]
+    public Task<ActionResult> UpdateImmovableProperty(
+        Guid estateId,
+        Guid assetId,
+        [FromBody] CreateImmovablePropertyRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateImmovablePropertyAsync(estateId, assetId, request));
+
+    [HttpPut("{estateId:guid}/financial-claims/{claimId:guid}")]
+    public Task<ActionResult> UpdateFinancialClaim(
+        Guid estateId,
+        Guid claimId,
+        [FromBody] CreateFinancialClaimRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateFinancialClaimAsync(estateId, claimId, request));
+
+    [HttpPut("{estateId:guid}/liabilities/{liabilityId:guid}")]
+    public Task<ActionResult> UpdateLiability(
+        Guid estateId,
+        Guid liabilityId,
+        [FromBody] CreateLiabilityRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateLiabilityAsync(estateId, liabilityId, request));
+
+    [HttpPut("{estateId:guid}/cashbook/{entryId:guid}")]
+    public Task<ActionResult> UpdateCashbookEntry(
+        Guid estateId,
+        Guid entryId,
+        [FromBody] CreateCashbookEntryRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateCashbookEntryAsync(estateId, entryId, request));
+
+    [HttpPut("{estateId:guid}/checklist/{itemId:guid}")]
+    public Task<ActionResult> UpdateChecklistItem(
+        Guid estateId,
+        Guid itemId,
+        [FromBody] CreateChecklistItemRequest request) =>
+        RunUpdateAsync(() =>
+            _estateService.UpdateChecklistItemAsync(estateId, itemId, request));
+
+    private static async Task<ActionResult> RunUpdateAsync(Func<Task> update)
+    {
+        try
+        {
+            await update();
+            return new NoContentResult();
+        }
+        catch (ArgumentException ex)
+        {
+            return new BadRequestObjectResult(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return new NotFoundObjectResult(new { message = ex.Message });
         }
     }
 

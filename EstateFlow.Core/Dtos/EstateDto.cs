@@ -57,6 +57,7 @@ public class EstateDto
     public List<ScannedDocumentDto> ScannedDocuments { get; set; } = new();
     public List<CashbookEntryDto> CashbookEntries { get; set; } = new();
     public List<ChecklistItemDto> ChecklistItems { get; set; } = new();
+    public List<AdvertisementDto> Advertisements { get; set; } = new();
     
     
 }

@@ -212,6 +212,26 @@ public interface IEstateService
         Guid estateId);
 
     // ─────────────────────────────────────────────
+    // Edit existing records
+    // ─────────────────────────────────────────────
+
+    Task UpdateBeneficiaryAsync(Guid estateId, Guid beneficiaryId, CreateBeneficiaryRequest request);
+
+    Task UpdateMovableAssetAsync(Guid estateId, Guid assetId, CreateMovableAssetRequest request);
+
+    Task UpdateImmovablePropertyAsync(Guid estateId, Guid assetId, CreateImmovablePropertyRequest request);
+
+    Task UpdateFinancialClaimAsync(Guid estateId, Guid claimId, CreateFinancialClaimRequest request);
+
+    Task UpdateLiabilityAsync(Guid estateId, Guid liabilityId, CreateLiabilityRequest request);
+
+    Task UpdateCashbookEntryAsync(Guid estateId, Guid entryId, CreateCashbookEntryRequest request);
+
+    Task UpdateChecklistItemAsync(Guid estateId, Guid itemId, CreateChecklistItemRequest request);
+
+    Task UpdateDiaryEntryAsync(Guid estateId, Guid diaryId, CreateDiaryEntryRequest request);
+
+    // ─────────────────────────────────────────────
     // Audit trail
     // ─────────────────────────────────────────────
 
