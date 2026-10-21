@@ -576,7 +576,7 @@ namespace EstateFlow.Data.Migrations
 
                     b.Property<string>("AdvertisementType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("ClaimDeadline")
                         .HasColumnType("datetime2");
@@ -604,9 +604,10 @@ namespace EstateFlow.Data.Migrations
 
                     b.HasKey("AdvertisementId");
 
-                    b.HasIndex("EstateId");
+                    b.HasIndex("EstateId", "AdvertisementType")
+                        .IsUnique();
 
-                    b.ToTable("EstateAdvertisements");
+                    b.ToTable("EstateAdvertisement");
                 });
 
             modelBuilder.Entity("EstateFlow.Core.Models.EstateController", b =>
