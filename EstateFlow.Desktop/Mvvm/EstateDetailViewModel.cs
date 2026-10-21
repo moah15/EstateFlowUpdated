@@ -665,7 +665,9 @@ public partial class EstateDetailViewModel : BaseViewModel
     {
         get => _liquidationDistributionDraft;
         set => SetProperty(ref _liquidationDistributionDraft, value);
-    }    // ─────────────────────────────────────────────
+    }
+
+    // ─────────────────────────────────────────────
     // Executor Tab – Detail fields
     // ─────────────────────────────────────────────
 
@@ -747,6 +749,20 @@ public partial class EstateDetailViewModel : BaseViewModel
         get => _hasLettersDocument;
         set => SetProperty(ref _hasLettersDocument, value);
     }
+
+    private bool _isEditingExecutor;
+    public bool IsEditingExecutor
+    {
+        get => _isEditingExecutor;
+        set
+        {
+            if (SetProperty(ref _isEditingExecutor, value))
+                OnPropertyChanged(nameof(ExecutorFormTitle));
+        }
+    }
+
+    public string ExecutorFormTitle =>
+        IsEditingExecutor ? "Edit Executor" : "New Executor";
 
     // ─────────────────────────────────────────────
     // Executor Tab – Section 29 Advertisement
@@ -882,6 +898,7 @@ public partial class EstateDetailViewModel : BaseViewModel
     public ICommand SelectExecutorCommand { get; }
     public ICommand UploadLettersCommand { get; }
     public ICommand ViewLettersCommand { get; }
+    public ICommand ClearExecutorFormCommand { get; }
     public ICommand SaveSection29Command { get; }
     public ICommand SaveSection35Command { get; }
 
@@ -955,6 +972,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             if (parameter is ExecutorDto executor)
                 LoadExecutorDetail(executor);
         });
+        ClearExecutorFormCommand = new RelayCommand(_ => ClearExecutorForm());
 
         UploadLettersCommand =
             new AsyncRelayCommand(
@@ -1177,101 +1195,7 @@ public partial class EstateDetailViewModel : BaseViewModel
 
     private async Task ExecuteAddExecutorAsync()
     {
-        if (_estateId == Guid.Empty)
-        {
-            StatusMessage =
-                "No estate is currently open.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                NewExecutorFullName))
-        {
-            StatusMessage =
-                "Executor full name is required.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                NewExecutorEmail))
-        {
-            StatusMessage =
-                "Executor email is required.";
-            return;
-        }
-
-        try
-        {
-            IsLoading = true;
-
-            StatusMessage =
-                "Saving executor...";
-
-            var request =
-                new CreateExecutorRequest
-                {
-                    FullName =
-                        NewExecutorFullName.Trim(),
-
-                    IdNumber =
-                        NewExecutorIdNumber?.Trim()
-                        ?? string.Empty,
-
-                    Email =
-                        NewExecutorEmail.Trim(),
-
-                    Role =
-                        string.IsNullOrWhiteSpace(
-                            NewExecutorRole)
-                            ? "Nominated Executor"
-                            : NewExecutorRole.Trim()
-                };
-
-            await _apiClient.AddExecutorAsync(
-                _estateId,
-                request);
-
-            // Reload the estate from the API/SQL.
-            // This proves we are displaying persisted data,
-            // rather than merely adding something locally.
-            var refreshedEstate =
-                await _apiClient.GetEstateAsync(
-                    _estateId);
-
-            if (refreshedEstate is null)
-            {
-                StatusMessage =
-                    "Executor was saved, but the estate could not be refreshed.";
-
-                return;
-            }
-
-            Estate = refreshedEstate;
-
-            NewExecutorFullName =
-                string.Empty;
-
-            NewExecutorIdNumber =
-                string.Empty;
-
-            NewExecutorEmail =
-                string.Empty;
-
-            NewExecutorRole =
-                "Nominated Executor";
-
-            StatusMessage =
-                "Executor added successfully.";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage =
-                $"Could not add executor: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        await ExecuteSaveExecutorDetailAsync();
     }
 
     private async Task ExecuteDeleteExecutorAsync(
@@ -2538,39 +2462,123 @@ public partial class EstateDetailViewModel : BaseViewModel
         ExecutorDetailLettersDate = executor.LettersOfExecutorshipDate;
         HasLettersDocument = !string.IsNullOrWhiteSpace(executor.LettersOfExecutorshipRef);
         LettersDocumentName = executor.LettersOfExecutorshipRef;
+        IsEditingExecutor = true;
+    }
+
+    public void ClearExecutorForm()
+    {
+        _executorDetailId = Guid.Empty;
+        ExecutorDetailFullName = string.Empty;
+        ExecutorDetailIdNumber = string.Empty;
+        ExecutorDetailEmail = string.Empty;
+        ExecutorDetailPhone = string.Empty;
+        ExecutorDetailAddress = string.Empty;
+        ExecutorDetailRole = "Nominated Executor";
+        ExecutorDetailMastersOffice = string.Empty;
+        ExecutorDetailLettersRef = string.Empty;
+        ExecutorDetailLettersDate = null;
+        HasLettersDocument = false;
+        LettersDocumentName = null;
+        IsEditingExecutor = false;
     }
 
     private async Task ExecuteSaveExecutorDetailAsync()
     {
-        if (_executorDetailId == Guid.Empty)
+        if (string.IsNullOrWhiteSpace(ExecutorDetailFullName))
         {
-            StatusMessage = "Select an executor first.";
+            StatusMessage = "Executor full name is required.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ExecutorDetailEmail))
+        {
+            StatusMessage = "Executor email is required.";
             return;
         }
 
         try
         {
             IsLoading = true;
-            StatusMessage = "Saving executor details...";
 
-            await _apiClient.UpdateExecutorAsync(
-                _estateId,
-                _executorDetailId,
-                new UpdateExecutorRequest
+            if (_executorDetailId == Guid.Empty)
+            {
+                // ── ADD NEW EXECUTOR ──
+                StatusMessage = "Saving executor...";
+
+                await _apiClient.AddExecutorAsync(
+                    _estateId,
+                    new CreateExecutorRequest
+                    {
+                        FullName = ExecutorDetailFullName.Trim(),
+                        IdNumber = ExecutorDetailIdNumber.Trim(),
+                        Email = ExecutorDetailEmail.Trim(),
+                        Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
+                                       ? "Nominated Executor"
+                                       : ExecutorDetailRole.Trim()
+                    });
+
+                // Refresh so we get the server-assigned ExecutorId
+                var refreshed = await _apiClient.GetEstateAsync(_estateId);
+                if (refreshed is not null) Estate = refreshed;
+
+                // Find the newly created executor (highest Id or last in list)
+                var newExec = Estate?.Executors?
+                    .FirstOrDefault(e => e.FullName.Equals(
+                        ExecutorDetailFullName.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (newExec is not null)
                 {
-                    FullName = ExecutorDetailFullName.Trim(),
-                    IdNumber = ExecutorDetailIdNumber.Trim(),
-                    Email = ExecutorDetailEmail.Trim(),
-                    Phone = ExecutorDetailPhone.Trim(),
-                    Address = ExecutorDetailAddress.Trim(),
-                    Role = ExecutorDetailRole.Trim(),
-                    MastersOffice = ExecutorDetailMastersOffice.Trim(),
-                    LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
-                    LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                });
+                    _executorDetailId = newExec.ExecutorId;
+                    IsEditingExecutor = true;
 
-            await RefreshEstateAsync();
-            StatusMessage = "Executor details saved.";
+                    // Save the extended fields (phone, address, etc.)
+                    await _apiClient.UpdateExecutorAsync(
+                        _estateId,
+                        _executorDetailId,
+                        new UpdateExecutorRequest
+                        {
+                            FullName = ExecutorDetailFullName.Trim(),
+                            IdNumber = ExecutorDetailIdNumber.Trim(),
+                            Email = ExecutorDetailEmail.Trim(),
+                            Phone = ExecutorDetailPhone.Trim(),
+                            Address = ExecutorDetailAddress.Trim(),
+                            Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
+                                                            ? "Nominated Executor"
+                                                            : ExecutorDetailRole.Trim(),
+                            MastersOffice = ExecutorDetailMastersOffice.Trim(),
+                            LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
+                            LettersOfExecutorshipDate = ExecutorDetailLettersDate
+                        });
+                }
+
+                await RefreshEstateAsync();
+                StatusMessage = "Executor added successfully.";
+            }
+            else
+            {
+                // ── UPDATE EXISTING EXECUTOR ──
+                StatusMessage = "Saving executor...";
+
+                await _apiClient.UpdateExecutorAsync(
+                    _estateId,
+                    _executorDetailId,
+                    new UpdateExecutorRequest
+                    {
+                        FullName = ExecutorDetailFullName.Trim(),
+                        IdNumber = ExecutorDetailIdNumber.Trim(),
+                        Email = ExecutorDetailEmail.Trim(),
+                        Phone = ExecutorDetailPhone.Trim(),
+                        Address = ExecutorDetailAddress.Trim(),
+                        Role = ExecutorDetailRole.Trim(),
+                        MastersOffice = ExecutorDetailMastersOffice.Trim(),
+                        LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
+                        LettersOfExecutorshipDate = ExecutorDetailLettersDate
+                    });
+
+                await RefreshEstateAsync();
+                StatusMessage = "Executor saved.";
+            }
         }
         catch (Exception ex)
         {

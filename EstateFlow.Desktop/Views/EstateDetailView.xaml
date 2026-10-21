@@ -689,39 +689,130 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
                     <StackPanel MaxWidth="700" HorizontalAlignment="Left">
 
-                        <!-- ── ADD EXECUTOR ───────────────────────────────────────── -->
+                        <!-- ── UNIFIED EXECUTOR FORM (add + edit) ─────────────────── -->
                         <Border Style="{StaticResource SectionCardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="ADD EXECUTOR" Style="{StaticResource SectionTitleStyle}"/>
 
-                                <TextBlock Text="Full Name" Style="{StaticResource FieldLabelStyle}"/>
+                                <!-- Header row: dynamic title + "New Executor" button -->
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding ExecutorFormTitle}"
+                                               Style="{StaticResource SectionTitleStyle}"
+                                               VerticalAlignment="Center"/>
+
+                                    <Button Grid.Column="1"
+                                            Content="+ New Executor"
+                                            Command="{Binding ClearExecutorFormCommand}"
+                                            Background="Transparent" BorderThickness="1" BorderBrush="#E4E2DD"
+                                            Foreground="#16181C" Padding="10,5"
+                                            FontFamily="{StaticResource SansFont}" FontSize="11"
+                                            Cursor="Hand" VerticalAlignment="Center"/>
+                                </Grid>
+
+                                <!-- Row 1: Full Name + Identity Number -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Full Name *" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding ExecutorDetailFullName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding ExecutorDetailIdNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontFamily="{StaticResource MonoFont}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Row 2: Email + Phone -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Email *" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding ExecutorDetailEmail, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
+                                        <TextBox Style="{StaticResource QuickAddTextBox}"
+                                                 Text="{Binding ExecutorDetailPhone, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontFamily="{StaticResource MonoFont}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Row 3: Role + Master's Office -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
+                                        <ComboBox IsEditable="True"
+                                                  Text="{Binding ExecutorDetailRole, UpdateSourceTrigger=PropertyChanged}"
+                                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,10">
+                                            <ComboBoxItem Content="Nominated Executor"/>
+                                            <ComboBoxItem Content="Appointed Executor"/>
+                                            <ComboBoxItem Content="Co-Executor"/>
+                                            <ComboBoxItem Content="Executor Dative"/>
+                                            <ComboBoxItem Content="Executor Testamentary"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Master's Office" Style="{StaticResource FieldLabelStyle}"/>
+                                        <ComboBox IsEditable="True"
+                                                  Text="{Binding ExecutorDetailMastersOffice, UpdateSourceTrigger=PropertyChanged}"
+                                                  Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,10">
+                                            <ComboBoxItem Content="Cape Town"/>
+                                            <ComboBoxItem Content="Johannesburg"/>
+                                            <ComboBoxItem Content="Pretoria"/>
+                                            <ComboBoxItem Content="Durban"/>
+                                            <ComboBoxItem Content="Bloemfontein"/>
+                                            <ComboBoxItem Content="Port Elizabeth"/>
+                                            <ComboBoxItem Content="East London"/>
+                                            <ComboBoxItem Content="Kimberley"/>
+                                            <ComboBoxItem Content="Polokwane"/>
+                                            <ComboBoxItem Content="Nelspruit"/>
+                                            <ComboBoxItem Content="Mmabatho"/>
+                                            <ComboBoxItem Content="Pietermaritzburg"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Row 4: Address (full width) -->
+                                <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}"/>
                                 <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding NewExecutorFullName, UpdateSourceTrigger=PropertyChanged}"/>
+                                         Text="{Binding ExecutorDetailAddress, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
 
-                                <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding NewExecutorIdNumber, UpdateSourceTrigger=PropertyChanged}"
-                             FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                              Text="{Binding NewExecutorRole, UpdateSourceTrigger=PropertyChanged}"
-                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Nominated Executor"/>
-                                    <ComboBoxItem Content="Co-Executor"/>
-                                    <ComboBoxItem Content="Executor Dative"/>
-                                    <ComboBoxItem Content="Executor Testamentary"/>
-                                </ComboBox>
-
-                                <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding NewExecutorEmail, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <Button Content="+ Add Executor"
-                            Command="{Binding AddExecutorCommand}"
-                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                            Cursor="Hand" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+                                <!-- Save button -->
+                                <Button Content="{Binding ExecutorFormTitle}"
+                                        ContentStringFormat="Save {0}"
+                                        Command="{Binding SaveExecutorDetailCommand}"
+                                        Background="#6E2A2A" Foreground="White" BorderThickness="0"
+                                        Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
+                                        Cursor="Hand" HorizontalAlignment="Left" Margin="0,6,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -767,94 +858,6 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-
-                        <!-- ── EXECUTOR DETAILS (shown after clicking Edit) ──────── -->
-                        <Border Margin="0,18,0,0">
-                            <Border.Style>
-                                <Style TargetType="Border" BasedOn="{StaticResource SectionCardBorderStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
-                                            <Setter Property="Opacity" Value="0.45"/>
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <StackPanel>
-                                <TextBlock Text="EXECUTOR DETAILS" Style="{StaticResource SectionTitleStyle}"/>
-                                <TextBlock Text="Click &#x22;Edit&#x22; on an executor above to load their details."
-                               FontFamily="{StaticResource SansFont}" FontSize="11" Foreground="#6B6E76"
-                               TextWrapping="Wrap" Margin="0,0,0,12">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasSelectedExecutor}" Value="False">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-
-                                <TextBlock Text="Full Name" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding ExecutorDetailFullName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="Identity Number" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding ExecutorDetailIdNumber, UpdateSourceTrigger=PropertyChanged}"
-                             FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Role" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                              Text="{Binding ExecutorDetailRole, UpdateSourceTrigger=PropertyChanged}"
-                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Nominated Executor"/>
-                                    <ComboBoxItem Content="Co-Executor"/>
-                                    <ComboBoxItem Content="Executor Dative"/>
-                                    <ComboBoxItem Content="Executor Testamentary"/>
-                                </ComboBox>
-
-                                <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding ExecutorDetailEmail, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding ExecutorDetailPhone, UpdateSourceTrigger=PropertyChanged}"
-                             FontFamily="{StaticResource MonoFont}"/>
-
-                                <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Style="{StaticResource QuickAddTextBox}"
-                             Text="{Binding ExecutorDetailAddress, UpdateSourceTrigger=PropertyChanged}"
-                             TextWrapping="Wrap" Height="60" AcceptsReturn="True"/>
-
-                                <TextBlock Text="Master's Office" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox IsEditable="True"
-                              Text="{Binding ExecutorDetailMastersOffice, UpdateSourceTrigger=PropertyChanged}"
-                              Padding="8,6" FontFamily="{StaticResource SansFont}" FontSize="12" Margin="0,0,0,12">
-                                    <ComboBoxItem Content="Cape Town"/>
-                                    <ComboBoxItem Content="Johannesburg"/>
-                                    <ComboBoxItem Content="Pretoria"/>
-                                    <ComboBoxItem Content="Durban"/>
-                                    <ComboBoxItem Content="Bloemfontein"/>
-                                    <ComboBoxItem Content="Port Elizabeth"/>
-                                    <ComboBoxItem Content="East London"/>
-                                    <ComboBoxItem Content="Kimberley"/>
-                                    <ComboBoxItem Content="Polokwane"/>
-                                    <ComboBoxItem Content="Nelspruit"/>
-                                    <ComboBoxItem Content="Mmabatho"/>
-                                    <ComboBoxItem Content="Pietermaritzburg"/>
-                                </ComboBox>
-
-                                <Button Content="Save Executor Details"
-                            Command="{Binding SaveExecutorDetailCommand}"
-                            Background="#6E2A2A" Foreground="White" BorderThickness="0"
-                            Padding="14,7" FontFamily="{StaticResource SansFont}" FontSize="12"
-                            Cursor="Hand" HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
 
                         <!-- ── LETTERS OF EXECUTORSHIP ────────────────────────────── -->
                         <Border Margin="0,18,0,0">
