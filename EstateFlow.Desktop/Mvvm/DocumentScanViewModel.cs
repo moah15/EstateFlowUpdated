@@ -8,7 +8,7 @@ using Microsoft.Win32;
 
 namespace EstateFlow.Desktop.Mvvm;
 
-public class DocumentScanViewModel : BaseViewModel
+public partial class DocumentScanViewModel : BaseViewModel
 {
     private readonly IApiClient _apiClient;
 
@@ -48,6 +48,7 @@ public class DocumentScanViewModel : BaseViewModel
                 return;
 
             _currentEstateId = value?.EstateId;
+            EstateChangedForForms();
 
             _selectedFilePath = null;
             SelectedFileName = "No file selected";
@@ -129,6 +130,8 @@ public class DocumentScanViewModel : BaseViewModel
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ViewDocumentCommand = new AsyncRelayCommand(ViewDocumentAsync);
         DeleteDocumentCommand = new AsyncRelayCommand(DeleteDocumentAsync);
+
+        InitFormCommands();
 
         // The document screen can now be opened directly from the sidebar.
         // It loads the available estates so the user can choose one.

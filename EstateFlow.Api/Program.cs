@@ -103,6 +103,8 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<TokenService>();
 
+builder.Services.AddScoped<EstateFlow.Api.Services.Forms.FormService>();
+
 // ======================================================
 // AZURE BLOB STORAGE
 // ======================================================

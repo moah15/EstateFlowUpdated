@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="EstateFlow.Desktop.Views.DocumentScanView"
+﻿<UserControl x:Class="EstateFlow.Desktop.Views.DocumentScanView" x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -66,7 +66,7 @@
                       Padding="24"
                       VerticalScrollBarVisibility="Auto">
 
-            <StackPanel MaxWidth="700"
+            <StackPanel MaxWidth="1000"
                         HorizontalAlignment="Left">
 
 
@@ -135,6 +135,39 @@
                     </StackPanel>
 
                 </Border>
+
+                <!-- ================================================= -->
+                <!-- DOCUMENT TYPE SWITCH -->
+                <!-- ================================================= -->
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+
+                    <RadioButton GroupName="DocumentMode"
+                                 Content="Scanned Documents"
+                                 IsChecked="{Binding IsScannedMode, Mode=OneWay}"
+                                 Command="{Binding ShowScannedDocumentsCommand}"
+                                 Padding="14,7"
+                                 Margin="0,0,8,0"
+                                 FontFamily="{StaticResource SansFont}"
+                                 FontSize="12"
+                                 Cursor="Hand"/>
+
+                    <RadioButton GroupName="DocumentMode"
+                                 Content="Estate Documents"
+                                 IsChecked="{Binding IsEstateDocumentsMode, Mode=OneWay}"
+                                 Command="{Binding ShowEstateDocumentsCommand}"
+                                 Padding="14,7"
+                                 FontFamily="{StaticResource SansFont}"
+                                 FontSize="12"
+                                 Cursor="Hand"/>
+
+                </StackPanel>
+
+                <!-- ================================================= -->
+                <!-- SCANNED DOCUMENTS -->
+                <!-- ================================================= -->
+
+                <StackPanel Visibility="{Binding IsScannedMode, Converter={StaticResource BoolToVisConverter}}">
 
                 <!-- ================================================= -->
                 <!-- UPLOAD DOCUMENT -->
@@ -377,6 +410,352 @@
                     </StackPanel>
 
                 </Border>
+
+                </StackPanel>
+
+                <!-- ================================================= -->
+                <!-- ESTATE DOCUMENTS (Master's Office forms) -->
+                <!-- ================================================= -->
+
+                <StackPanel Visibility="{Binding IsEstateDocumentsMode, Converter={StaticResource BoolToVisConverter}}">
+
+                    <!-- Form list -->
+                    <Border Background="#FFFFFF"
+                            BorderBrush="#E4E2DD"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="18"
+                            Margin="0,0,0,16">
+
+                        <StackPanel>
+
+                            <TextBlock Text="MASTER'S OFFICE FORMS"
+                                       FontFamily="{StaticResource MonoFont}"
+                                       FontSize="10"
+                                       Foreground="#9CA0A8"
+                                       Margin="0,0,0,8"/>
+
+                            <!-- shown once a form has been chosen -->
+                            <Grid Visibility="{Binding IsFormPickerClosed, Converter={StaticResource BoolToVisConverter}}">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding SelectedFormTitle}"
+                                           FontFamily="{StaticResource SansFont}"
+                                           FontSize="12"
+                                           Foreground="#16181C"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+
+                                <Button Grid.Column="1"
+                                        Content="Change form"
+                                        Command="{Binding ChangeFormCommand}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="12,6"
+                                        Margin="12,0,0,0"
+                                        Cursor="Hand"/>
+
+                            </Grid>
+
+                            <StackPanel Visibility="{Binding IsFormPickerOpen, Converter={StaticResource BoolToVisConverter}}">
+
+<TextBlock Text="Choose a form. It is filled in from the estate selected above, and you can change anything before you save it."
+                                       FontFamily="{StaticResource SansFont}"
+                                       FontSize="12"
+                                       Foreground="#6B6E76"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Search by form number or title"
+                                       FontFamily="{StaticResource SansFont}"
+                                       FontSize="12"
+                                       Foreground="#6B6E76"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding FormSearch, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="{StaticResource SansFont}"
+                                     FontSize="12"
+                                     Foreground="#16181C"
+                                     Background="#FFFFFF"
+                                     BorderBrush="#E4E2DD"
+                                     BorderThickness="1"
+                                     Padding="9,7"
+                                     Margin="0,0,0,12"/>
+
+                            <ItemsControl ItemsSource="{Binding FormGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+
+                                        <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
+                                                  Margin="0,0,0,4">
+
+                                            <Expander.Header>
+                                                <TextBlock Text="{Binding Heading}"
+                                                           FontFamily="{StaticResource SerifFont}"
+                                                           FontSize="14"
+                                                           Foreground="#16181C"/>
+                                            </Expander.Header>
+
+                                            <ItemsControl ItemsSource="{Binding Forms}"
+                                                          Margin="14,4,0,8">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+
+                                                        <Button Command="{Binding DataContext.SelectFormCommand, ElementName=Root}"
+                                                                CommandParameter="{Binding}"
+                                                                HorizontalContentAlignment="Stretch"
+                                                                Background="Transparent"
+                                                                BorderBrush="#EFEDE8"
+                                                                BorderThickness="0,0,0,1"
+                                                                Padding="6,7"
+                                                                Cursor="Hand">
+
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="100"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <TextBlock Grid.Column="0"
+                                                                           Text="{Binding Code}"
+                                                                           FontFamily="{StaticResource MonoFont}"
+                                                                           FontSize="11"
+                                                                           Foreground="#6E2A2A"
+                                                                           VerticalAlignment="Top"/>
+
+                                                                <TextBlock Grid.Column="1"
+                                                                           Text="{Binding Title}"
+                                                                           FontFamily="{StaticResource SansFont}"
+                                                                           FontSize="12"
+                                                                           Foreground="#16181C"
+                                                                           TextWrapping="Wrap"
+                                                                           HorizontalAlignment="Left"/>
+                                                            </Grid>
+
+                                                        </Button>
+
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Expander>
+
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </Border>
+
+                    <!-- Form editor -->
+                    <Border Background="#FFFFFF"
+                            BorderBrush="#E4E2DD"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="18"
+                            Margin="0,0,0,16"
+                            Visibility="{Binding HasSelectedForm, Converter={StaticResource BoolToVisConverter}}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="{Binding SelectedFormTitle}"
+                                       FontFamily="{StaticResource SerifFont}"
+                                       FontSize="16"
+                                       Foreground="#16181C"
+                                       TextWrapping="Wrap"/>
+
+                            <TextBlock Text="{Binding FormMessage}"
+                                       FontFamily="{StaticResource MonoFont}"
+                                       FontSize="11"
+                                       Foreground="#6B6E76"
+                                       TextWrapping="Wrap"
+                                       Margin="0,6,0,12"/>
+
+                            <WrapPanel Margin="0,0,0,12">
+
+                                <Button Content="Save to estate documents"
+                                        Command="{Binding SaveFormToEstateCommand}"
+                                        Visibility="{Binding CanFillSelectedForm, Converter={StaticResource BoolToVisConverter}}"
+                                        Background="#6E2A2A"
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                                <Button Content="Download PDF..."
+                                        Command="{Binding DownloadFilledFormCommand}"
+                                        Visibility="{Binding CanFillSelectedForm, Converter={StaticResource BoolToVisConverter}}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                                <Button Content="Open / Print"
+                                        Command="{Binding OpenFilledFormCommand}"
+                                        Visibility="{Binding CanFillSelectedForm, Converter={StaticResource BoolToVisConverter}}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                                <Button Content="Reset to estate details"
+                                        Command="{Binding ResetFormCommand}"
+                                        Visibility="{Binding CanFillSelectedForm, Converter={StaticResource BoolToVisConverter}}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                                <Button Content="Open blank form"
+                                        Command="{Binding OpenBlankFormCommand}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                                <Button Content="Download blank..."
+                                        Command="{Binding DownloadBlankFormCommand}"
+                                        Background="Transparent"
+                                        BorderBrush="#E4E2DD"
+                                        BorderThickness="1"
+                                        Foreground="#16181C"
+                                        FontFamily="{StaticResource SansFont}"
+                                        FontSize="12"
+                                        Padding="14,8"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand"/>
+
+                            </WrapPanel>
+
+                            <CheckBox Content="Show boxes that are still empty"
+                                      IsChecked="{Binding ShowEmptyFields}"
+                                      Visibility="{Binding CanFillSelectedForm, Converter={StaticResource BoolToVisConverter}}"
+                                      FontFamily="{StaticResource SansFont}"
+                                      FontSize="12"
+                                      Margin="0,0,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding VisibleFormFields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+
+                                        <StackPanel>
+
+                                            <TextBlock Text="{Binding PageText}"
+                                                       Visibility="{Binding ShowPageHeader, Converter={StaticResource BoolToVisConverter}}"
+                                                       FontFamily="{StaticResource MonoFont}"
+                                                       FontSize="10"
+                                                       Foreground="#9CA0A8"
+                                                       Margin="0,14,0,6"/>
+
+                                            <Grid Margin="0,0,0,6">
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="290"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Label}"
+                                                           FontFamily="{StaticResource SansFont}"
+                                                           FontSize="12"
+                                                           Foreground="#6B6E76"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Top"
+                                                           Margin="0,6,12,0"/>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                         Visibility="{Binding IsText, Converter={StaticResource BoolToVisConverter}}"
+                                                         FontFamily="{StaticResource SansFont}"
+                                                         FontSize="12"
+                                                         Foreground="#16181C"
+                                                         BorderBrush="#E4E2DD"
+                                                         BorderThickness="1"
+                                                         Padding="8,5">
+                                                    <TextBox.Style>
+                                                        <Style TargetType="TextBox">
+                                                            <Setter Property="Background" Value="#FFFFFF"/>
+                                                            <Setter Property="TextWrapping" Value="NoWrap"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AutoFilled}" Value="True">
+                                                                    <Setter Property="Background" Value="#F1F7F2"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsEdited}" Value="True">
+                                                                    <Setter Property="Background" Value="#FFF8E1"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsMultiline}" Value="True">
+                                                                    <Setter Property="AcceptsReturn" Value="True"/>
+                                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                                    <Setter Property="MinHeight" Value="70"/>
+                                                                    <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBox.Style>
+                                                </TextBox>
+
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding IsChecked}"
+                                                          Visibility="{Binding IsCheckbox, Converter={StaticResource BoolToVisConverter}}"
+                                                          VerticalAlignment="Center"/>
+
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Hint}"
+                                                           FontFamily="{StaticResource MonoFont}"
+                                                           FontSize="10"
+                                                           Foreground="#9CA0A8"
+                                                           VerticalAlignment="Top"
+                                                           Margin="10,8,0,0"/>
+
+                                            </Grid>
+
+                                        </StackPanel>
+
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
 
             </StackPanel>
 

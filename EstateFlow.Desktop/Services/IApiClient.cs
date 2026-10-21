@@ -242,6 +242,12 @@ public interface IApiClient
     Task UpdateCashbookEntryAsync(Guid estateId, Guid entryId, CreateCashbookEntryRequest request);
     Task UpdateChecklistItemAsync(Guid estateId, Guid itemId, CreateChecklistItemRequest request);
     Task UpdateDiaryEntryAsync(Guid estateId, Guid diaryId, CreateDiaryEntryRequest request);
+
+    // Estate Documents (Master's Office forms)
+    Task<List<FormGroupDto>> GetFormCatalogAsync();
+    Task<EstateFormDto> GetEstateFormAsync(Guid estateId, string formId);
+    Task<string> GenerateEstateFormToTempFileAsync(Guid estateId, string formId, Dictionary<string, string> values);
+    Task<string> DownloadBlankFormToTempFileAsync(string formId);
     Task<string> UploadExecutorDocumentAsync(Guid estateId, Guid executorDetailId, string fileName);
     Task UpsertAdvertisementAsync(Guid estateId, UpsertAdvertisementRequest upsertAdvertisementRequest);
 }

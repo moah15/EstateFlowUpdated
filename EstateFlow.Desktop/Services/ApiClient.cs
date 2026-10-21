@@ -857,6 +857,58 @@ public class ApiClient : IApiClient
         PutAsync($"api/diary/estate/{estateId}/{diaryId}", request,
             "The diary entry could not be saved");
 
+    public async Task<List<FormGroupDto>> GetFormCatalogAsync()
+    {
+        var response = await _httpClient.GetAsync("api/forms");
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The list of forms could not be loaded");
+
+        return await response.Content.ReadFromJsonAsync<List<FormGroupDto>>()
+               ?? new List<FormGroupDto>();
+    }
+
+    public async Task<EstateFormDto> GetEstateFormAsync(Guid estateId, string formId)
+    {
+        var response = await _httpClient.GetAsync(
+            $"api/estates/{estateId}/forms/{Uri.EscapeDataString(formId)}");
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The form could not be loaded");
+
+        return (await response.Content.ReadFromJsonAsync<EstateFormDto>())!;
+    }
+
+    public async Task<string> GenerateEstateFormToTempFileAsync(
+        Guid estateId,
+        string formId,
+        Dictionary<string, string> values)
+    {
+        var response = await _httpClient.PostAsJsonAsync(
+            $"api/estates/{estateId}/forms/{Uri.EscapeDataString(formId)}/pdf",
+            new GenerateFormRequest { Values = values });
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The form could not be created");
+
+        return await SaveResponseToTempFileAsync(response, $"{formId}.pdf");
+    }
+
+    public async Task<string> DownloadBlankFormToTempFileAsync(string formId)
+    {
+        var response = await _httpClient.GetAsync(
+            $"api/forms/{Uri.EscapeDataString(formId)}/blank");
+
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The blank form could not be downloaded");
+
+        return await SaveResponseToTempFileAsync(response, $"{formId}_blank.pdf");
+    }
+
     private async Task PutAsync<T>(string url, T request, string fallbackMessage)
     {
         var response = await _httpClient.PutAsJsonAsync(url, request);
