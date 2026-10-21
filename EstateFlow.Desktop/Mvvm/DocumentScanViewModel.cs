@@ -19,6 +19,25 @@ public class DocumentScanViewModel : BaseViewModel
     public ObservableCollection<EstateSummaryDto> Estates { get; } = new();
     public ObservableCollection<ScannedDocumentDto> Documents { get; } = new();
 
+    public IReadOnlyList<string> DocumentTypes { get; } = new[]
+    {
+        "Letters of Executorship",
+        "Death Certificate",
+        "Identity Document",
+        "Will",
+        "Codicil",
+        "Marriage Certificate",
+        "Title Deed",
+        "Vehicle Registration",
+        "Bank Statement",
+        "Policy Document",
+        "Power of Attorney",
+        "Master's Office Correspondence",
+        "SARS Correspondence",
+        "Correspondence",
+        "Other"
+    };
+
     private EstateSummaryDto? _selectedEstate;
     public EstateSummaryDto? SelectedEstate
     {
@@ -56,7 +75,7 @@ public class DocumentScanViewModel : BaseViewModel
         set => SetProperty(ref _statusMessage, value);
     }
 
-    private string _newDocumentType = "Document";
+    private string _newDocumentType = "Other";
     public string NewDocumentType
     {
         get => _newDocumentType;
@@ -125,7 +144,7 @@ public class DocumentScanViewModel : BaseViewModel
 
         HeaderText = "Document Registry";
         SelectedFileName = "No file selected";
-        NewDocumentType = "Document";
+        NewDocumentType = "Other";
 
         StatusMessage = "Choose an estate below to view or upload documents.";
 
@@ -352,7 +371,7 @@ public class DocumentScanViewModel : BaseViewModel
             _selectedFilePath = null;
 
             SelectedFileName = "No file selected";
-            NewDocumentType = "Document";
+            NewDocumentType = "Other";
 
             await LoadDocumentsAsync();
 

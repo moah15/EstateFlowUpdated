@@ -163,16 +163,18 @@
                                    Foreground="#6B6E76"
                                    Margin="0,0,0,5"/>
 
-                        <TextBox Text="{Binding NewDocumentType,
-                                              UpdateSourceTrigger=PropertyChanged}"
-                                 FontFamily="{StaticResource SansFont}"
-                                 FontSize="12"
-                                 Foreground="#16181C"
-                                 Background="#FFFFFF"
-                                 BorderBrush="#E4E2DD"
-                                 BorderThickness="1"
-                                 Padding="9,7"
-                                 Margin="0,0,0,14"/>
+                        <ComboBox ItemsSource="{Binding DocumentTypes}"
+                                  Text="{Binding NewDocumentType,
+                                                 UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  FontFamily="{StaticResource SansFont}"
+                                  FontSize="12"
+                                  Foreground="#16181C"
+                                  Background="#FFFFFF"
+                                  BorderBrush="#E4E2DD"
+                                  BorderThickness="1"
+                                  Padding="9,7"
+                                  Margin="0,0,0,14"/>
 
                         <!-- File Picker -->
 

@@ -91,7 +91,7 @@ public interface IApiClient
     // Executors
     // ─────────────────────────────────────────────
 
-    Task AddExecutorAsync(
+    Task<Guid> AddExecutorAsync(
         Guid estateId,
         CreateExecutorRequest request);
 

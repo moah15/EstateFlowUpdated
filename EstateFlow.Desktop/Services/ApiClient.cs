@@ -283,7 +283,7 @@ public class ApiClient : IApiClient
     // Executors
     // ─────────────────────────────────────────────
 
-    public async Task AddExecutorAsync(
+    public async Task<Guid> AddExecutorAsync(
         Guid estateId,
         CreateExecutorRequest request)
     {
@@ -292,7 +292,15 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/executors",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The executor could not be saved");
+
+        var result =
+            await response.Content
+                .ReadFromJsonAsync<Dictionary<string, Guid>>();
+
+        return result!["executorId"];
     }
 
     public async Task DeleteExecutorAsync(
