@@ -2,6 +2,7 @@ using EstateFlow.Core.Models;
 
 namespace EstateFlow.Core.Dtos;
 
+// comment test
 public class EstateDto
 {
     public Guid EstateId { get; set; }

@@ -45,3 +45,9 @@ Thumbs.db
 # Rider / VS Code optional
 .idea/
 .vscode/
+
+# AI assistant files (must never appear in the repo)
+CLAUDE.md
+.claude/
+.claudeignore
+.mcp.json

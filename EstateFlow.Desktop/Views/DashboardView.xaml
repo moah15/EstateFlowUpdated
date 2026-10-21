@@ -161,9 +161,9 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                     <Button Content="Refresh" Command="{Binding LoadEstatesCommand}"
-                            Style="{StaticResource OutlineButtonStyle}" Margin="0,0,8,0"/>
+                            Style="{StaticResource OutlineButtonStyle}" Margin="0,0,8,0" Width="81"/>
                     <Button Content="+ New Estate" Command="{Binding NewEstateCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}" FontSize="12" Padding="16,8"/>
+                            Style="{StaticResource PrimaryButtonStyle}" FontSize="12" Padding="16,8" Width="93"/>
                 </StackPanel>
             </Grid>
 

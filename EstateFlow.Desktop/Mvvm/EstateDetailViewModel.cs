@@ -73,39 +73,6 @@ public partial class EstateDetailViewModel : BaseViewModel
     }
 
     // ─────────────────────────────────────────────
-    // Quick-add: Executor
-    // ─────────────────────────────────────────────
-
-    private string _newExecutorFullName = string.Empty;
-    public string NewExecutorFullName
-    {
-        get => _newExecutorFullName;
-        set => SetProperty(ref _newExecutorFullName, value);
-    }
-
-    private string _newExecutorIdNumber = string.Empty;
-    public string NewExecutorIdNumber
-    {
-        get => _newExecutorIdNumber;
-        set => SetProperty(ref _newExecutorIdNumber, value);
-    }
-
-
-    private string _newExecutorEmail = string.Empty;
-    public string NewExecutorEmail
-    {
-        get => _newExecutorEmail;
-        set => SetProperty(ref _newExecutorEmail, value);
-    }
-
-    private string _newExecutorRole = "Nominated Executor";
-    public string NewExecutorRole
-    {
-        get => _newExecutorRole;
-        set => SetProperty(ref _newExecutorRole, value);
-    }
-
-    // ─────────────────────────────────────────────
     // Quick-add: Beneficiary
     // ─────────────────────────────────────────────
 
@@ -198,7 +165,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         get => _newBeneficiaryIdNumber;
         set => SetProperty(ref _newBeneficiaryIdNumber, value);
     }
-
 
     private string _newBeneficiaryEmail = string.Empty;
     public string NewBeneficiaryEmail
@@ -369,6 +335,7 @@ public partial class EstateDetailViewModel : BaseViewModel
 
     private string _newAssetCumulativeDividend = "0";
     public string NewAssetCumulativeDividend { get => _newAssetCumulativeDividend; set => SetProperty(ref _newAssetCumulativeDividend, value); }
+
     // ─────────────────────────────────────────────
     // Quick-add: Immovable Property
     // ─────────────────────────────────────────────
@@ -517,7 +484,7 @@ public partial class EstateDetailViewModel : BaseViewModel
     public DateTime? NewClaimCollectedDate { get => _newClaimCollectedDate; set => SetProperty(ref _newClaimCollectedDate, value); }
 
     private bool _newClaimIsCreditLife;
-    public bool NewClaimIsCreditLife { get => _newClaimIsCreditLife; set => SetProperty(ref _newClaimIsCreditLife, value); }
+    public bool NewClaimIsCreditLife { get => _newClaimIsCreditLife; set => SetProperty(ref _newClaimIsCollected, value); }
 
     private string _newClaimLinkedLiabilityNote = string.Empty;
     public string NewClaimLinkedLiabilityNote { get => _newClaimLinkedLiabilityNote; set => SetProperty(ref _newClaimLinkedLiabilityNote, value); }
@@ -601,7 +568,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         set => SetProperty(ref _editingProgressStatus, value);
     }
 
-
     // ─────────────────────────────────────────────
     // Part 3: Liabilities + L&D draft
     // ─────────────────────────────────────────────
@@ -668,10 +634,24 @@ public partial class EstateDetailViewModel : BaseViewModel
     }
 
     // ─────────────────────────────────────────────
-    // Executor Tab – Detail fields
+    // Executor Tab – unified form fields
     // ─────────────────────────────────────────────
 
     private Guid _executorDetailId;
+
+    private bool _isEditingExecutor;
+    public bool IsEditingExecutor
+    {
+        get => _isEditingExecutor;
+        set
+        {
+            if (SetProperty(ref _isEditingExecutor, value))
+                OnPropertyChanged(nameof(ExecutorFormTitle));
+        }
+    }
+
+    public string ExecutorFormTitle =>
+        IsEditingExecutor ? "Edit Executor" : "New Executor";
 
     private string _executorDetailFullName = string.Empty;
     public string ExecutorDetailFullName
@@ -749,20 +729,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         get => _hasLettersDocument;
         set => SetProperty(ref _hasLettersDocument, value);
     }
-
-    private bool _isEditingExecutor;
-    public bool IsEditingExecutor
-    {
-        get => _isEditingExecutor;
-        set
-        {
-            if (SetProperty(ref _isEditingExecutor, value))
-                OnPropertyChanged(nameof(ExecutorFormTitle));
-        }
-    }
-
-    public string ExecutorFormTitle =>
-        IsEditingExecutor ? "Edit Executor" : "New Executor";
 
     // ─────────────────────────────────────────────
     // Executor Tab – Section 29 Advertisement
@@ -896,9 +862,9 @@ public partial class EstateDetailViewModel : BaseViewModel
     public ICommand DeleteExecutorCommand { get; }
     public ICommand SaveExecutorDetailCommand { get; }
     public ICommand SelectExecutorCommand { get; }
+    public ICommand ClearExecutorFormCommand { get; }
     public ICommand UploadLettersCommand { get; }
     public ICommand ViewLettersCommand { get; }
-    public ICommand ClearExecutorFormCommand { get; }
     public ICommand SaveSection29Command { get; }
     public ICommand SaveSection35Command { get; }
 
@@ -955,23 +921,27 @@ public partial class EstateDetailViewModel : BaseViewModel
             new AsyncRelayCommand(
                 async _ => await ExecuteDeleteEstateAsync());
 
+        // AddExecutorCommand delegates to SaveExecutorDetailCommand
+        // (unified form handles both add and edit)
         AddExecutorCommand =
             new AsyncRelayCommand(
-                async _ => await ExecuteAddExecutorAsync());
+                async _ => await ExecuteSaveExecutorDetailAsync());
 
         DeleteExecutorCommand =
             new AsyncRelayCommand(
                 async parameter =>
                     await ExecuteDeleteExecutorAsync(parameter));
+
         SaveExecutorDetailCommand =
-    new AsyncRelayCommand(
-        async _ => await ExecuteSaveExecutorDetailAsync());
+            new AsyncRelayCommand(
+                async _ => await ExecuteSaveExecutorDetailAsync());
 
         SelectExecutorCommand = new RelayCommand(parameter =>
         {
             if (parameter is ExecutorDto executor)
                 LoadExecutorDetail(executor);
         });
+
         ClearExecutorFormCommand = new RelayCommand(_ => ClearExecutorForm());
 
         UploadLettersCommand =
@@ -989,7 +959,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         SaveSection35Command =
             new AsyncRelayCommand(
                 async _ => await ExecuteSaveSection35Async());
-
 
         AddBeneficiaryCommand =
             new AsyncRelayCommand(
@@ -1107,7 +1076,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         IsLoading = true;
         StatusMessage = "Loading estate...";
 
-
         try
         {
             Estate = await _apiClient.GetEstateAsync(estateId);
@@ -1190,30 +1158,101 @@ public partial class EstateDetailViewModel : BaseViewModel
     }
 
     // ─────────────────────────────────────────────
-    // Executor
+    // Executor – unified add / edit
     // ─────────────────────────────────────────────
 
-    private async Task ExecuteAddExecutorAsync()
-    {
-        await ExecuteSaveExecutorDetailAsync();
-    }
-
-    private async Task ExecuteDeleteExecutorAsync(
-        object? parameter)
+    private async Task ExecuteDeleteExecutorAsync(object? parameter)
     {
         if (parameter is not Guid executorId)
         {
-            StatusMessage =
-                "Could not determine which executor to remove.";
-
+            StatusMessage = "Could not determine which executor to remove.";
             return;
         }
 
         if (_estateId == Guid.Empty)
         {
-            StatusMessage =
-                "No estate is currently open.";
+            StatusMessage = "No estate is currently open.";
+            return;
+        }
 
+        try
+        {
+            IsLoading = true;
+            StatusMessage = "Removing executor...";
+
+            await _apiClient.DeleteExecutorAsync(_estateId, executorId);
+
+            // If the deleted executor was loaded in the form, clear it
+            if (_executorDetailId == executorId)
+                ClearExecutorForm();
+
+            var refreshedEstate = await _apiClient.GetEstateAsync(_estateId);
+            if (refreshedEstate is not null)
+                Estate = refreshedEstate;
+
+            StatusMessage = "Executor removed successfully.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Could not remove executor: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public void LoadExecutorDetail(ExecutorDto executor)
+    {
+        _executorDetailId = executor.ExecutorId;
+        ExecutorDetailFullName = executor.FullName;
+        ExecutorDetailIdNumber = executor.IdNumber ?? string.Empty;
+        ExecutorDetailEmail = executor.Email ?? string.Empty;
+        ExecutorDetailPhone = executor.Phone ?? string.Empty;
+        ExecutorDetailAddress = executor.Address ?? string.Empty;
+        ExecutorDetailRole = executor.Role ?? "Nominated Executor";
+        ExecutorDetailMastersOffice = executor.MastersOffice ?? string.Empty;
+        ExecutorDetailLettersRef = executor.LettersOfExecutorshipRef ?? string.Empty;
+        ExecutorDetailLettersDate = executor.LettersOfExecutorshipDate;
+        HasLettersDocument = !string.IsNullOrWhiteSpace(executor.LettersOfExecutorshipRef);
+        LettersDocumentName = executor.LettersOfExecutorshipRef;
+        IsEditingExecutor = true;
+    }
+
+    public void ClearExecutorForm()
+    {
+        _executorDetailId = Guid.Empty;
+        ExecutorDetailFullName = string.Empty;
+        ExecutorDetailIdNumber = string.Empty;
+        ExecutorDetailEmail = string.Empty;
+        ExecutorDetailPhone = string.Empty;
+        ExecutorDetailAddress = string.Empty;
+        ExecutorDetailRole = "Nominated Executor";
+        ExecutorDetailMastersOffice = string.Empty;
+        ExecutorDetailLettersRef = string.Empty;
+        ExecutorDetailLettersDate = null;
+        HasLettersDocument = false;
+        LettersDocumentName = null;
+        IsEditingExecutor = false;
+    }
+
+    private async Task ExecuteSaveExecutorDetailAsync()
+    {
+        if (_estateId == Guid.Empty)
+        {
+            StatusMessage = "No estate is currently open.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ExecutorDetailFullName))
+        {
+            StatusMessage = "Executor full name is required.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ExecutorDetailEmail))
+        {
+            StatusMessage = "Executor email is required.";
             return;
         }
 
@@ -1221,40 +1260,179 @@ public partial class EstateDetailViewModel : BaseViewModel
         {
             IsLoading = true;
 
-            StatusMessage =
-                "Removing executor...";
-
-            await _apiClient.DeleteExecutorAsync(
-                _estateId,
-                executorId);
-
-            var refreshedEstate =
-                await _apiClient.GetEstateAsync(
-                    _estateId);
-
-            if (refreshedEstate is null)
+            if (_executorDetailId == Guid.Empty)
             {
-                StatusMessage =
-                    "Executor was removed, but the estate could not be refreshed.";
+                // ── ADD NEW EXECUTOR ──
+                StatusMessage = "Saving executor...";
 
-                return;
+                await _apiClient.AddExecutorAsync(
+                    _estateId,
+                    new CreateExecutorRequest
+                    {
+                        FullName = ExecutorDetailFullName.Trim(),
+                        IdNumber = ExecutorDetailIdNumber.Trim(),
+                        Email = ExecutorDetailEmail.Trim(),
+                        Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
+                                       ? "Nominated Executor"
+                                       : ExecutorDetailRole.Trim()
+                    });
+
+                // Refresh to get the server-assigned ExecutorId
+                var refreshed = await _apiClient.GetEstateAsync(_estateId);
+                if (refreshed is not null) Estate = refreshed;
+
+                // Find the newly created executor by name match
+                var newExec = Estate?.Executors?
+                    .FirstOrDefault(e => e.FullName.Equals(
+                        ExecutorDetailFullName.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (newExec is not null)
+                {
+                    _executorDetailId = newExec.ExecutorId;
+                    IsEditingExecutor = true;
+
+                    // Save extended fields (phone, address, master's office, etc.)
+                    await _apiClient.UpdateExecutorAsync(
+                        _estateId,
+                        _executorDetailId,
+                        new UpdateExecutorRequest
+                        {
+                            FullName = ExecutorDetailFullName.Trim(),
+                            IdNumber = ExecutorDetailIdNumber.Trim(),
+                            Email = ExecutorDetailEmail.Trim(),
+                            Phone = ExecutorDetailPhone.Trim(),
+                            Address = ExecutorDetailAddress.Trim(),
+                            Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
+                                                            ? "Nominated Executor"
+                                                            : ExecutorDetailRole.Trim(),
+                            MastersOffice = ExecutorDetailMastersOffice.Trim(),
+                            LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
+                            LettersOfExecutorshipDate = ExecutorDetailLettersDate
+                        });
+                }
+
+                await RefreshEstateAsync();
+                StatusMessage = "Executor added successfully.";
             }
+            else
+            {
+                // ── UPDATE EXISTING EXECUTOR ──
+                StatusMessage = "Saving executor...";
 
-            Estate = refreshedEstate;
+                await _apiClient.UpdateExecutorAsync(
+                    _estateId,
+                    _executorDetailId,
+                    new UpdateExecutorRequest
+                    {
+                        FullName = ExecutorDetailFullName.Trim(),
+                        IdNumber = ExecutorDetailIdNumber.Trim(),
+                        Email = ExecutorDetailEmail.Trim(),
+                        Phone = ExecutorDetailPhone.Trim(),
+                        Address = ExecutorDetailAddress.Trim(),
+                        Role = ExecutorDetailRole.Trim(),
+                        MastersOffice = ExecutorDetailMastersOffice.Trim(),
+                        LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
+                        LettersOfExecutorshipDate = ExecutorDetailLettersDate
+                    });
 
-            StatusMessage =
-                "Executor removed successfully.";
+                await RefreshEstateAsync();
+                StatusMessage = "Executor saved.";
+            }
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove executor: {ex.Message}";
+            StatusMessage = $"Could not save executor: {ex.Message}";
         }
         finally
         {
             IsLoading = false;
         }
     }
+
+    private async Task ExecuteUploadLettersAsync()
+    {
+        if (_executorDetailId == Guid.Empty)
+        {
+            StatusMessage = "Save the executor first, then upload letters.";
+            return;
+        }
+
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select Letters of Executorship",
+            Filter = "PDF files (*.pdf)|*.pdf|All files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        try
+        {
+            IsLoading = true;
+            StatusMessage = "Uploading Letters of Executorship...";
+
+            var blobRef = await _apiClient.UploadExecutorDocumentAsync(
+                _estateId,
+                _executorDetailId,
+                dialog.FileName);
+
+            ExecutorDetailLettersRef = blobRef;
+            HasLettersDocument = true;
+            LettersDocumentName = System.IO.Path.GetFileName(dialog.FileName);
+
+            await _apiClient.UpdateExecutorAsync(
+                _estateId,
+                _executorDetailId,
+                new UpdateExecutorRequest
+                {
+                    FullName = ExecutorDetailFullName,
+                    IdNumber = ExecutorDetailIdNumber,
+                    Email = ExecutorDetailEmail,
+                    Phone = ExecutorDetailPhone,
+                    Address = ExecutorDetailAddress,
+                    Role = ExecutorDetailRole,
+                    MastersOffice = ExecutorDetailMastersOffice,
+                    LettersOfExecutorshipRef = blobRef,
+                    LettersOfExecutorshipDate = ExecutorDetailLettersDate
+                });
+
+            await RefreshEstateAsync();
+            StatusMessage = "Letters of Executorship uploaded.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Could not upload document: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void ExecuteViewLetters()
+    {
+        if (string.IsNullOrWhiteSpace(ExecutorDetailLettersRef))
+        {
+            StatusMessage = "No Letters of Executorship document on file.";
+            return;
+        }
+
+        try
+        {
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = ExecutorDetailLettersRef,
+                    UseShellExecute = true
+                });
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Could not open document: {ex.Message}";
+        }
+    }
+
     // ─────────────────────────────────────────────
     // Beneficiary
     // ─────────────────────────────────────────────
@@ -1365,24 +1543,19 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private async Task ExecuteDeleteBeneficiaryAsync(
-        object? parameter)
+    private async Task ExecuteDeleteBeneficiaryAsync(object? parameter)
     {
         if (parameter is not Guid beneficiaryId)
             return;
 
         try
         {
-            await _apiClient.DeleteBeneficiaryAsync(
-                _estateId,
-                beneficiaryId);
-
+            await _apiClient.DeleteBeneficiaryAsync(_estateId, beneficiaryId);
             await LoadAsync(_estateId);
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove beneficiary: {ex.Message}";
+            StatusMessage = $"Could not remove beneficiary: {ex.Message}";
         }
     }
 
@@ -1498,24 +1671,19 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private async Task ExecuteDeleteMovableAssetAsync(
-        object? parameter)
+    private async Task ExecuteDeleteMovableAssetAsync(object? parameter)
     {
         if (parameter is not Guid assetId)
             return;
 
         try
         {
-            await _apiClient.DeleteMovableAssetAsync(
-                _estateId,
-                assetId);
-
+            await _apiClient.DeleteMovableAssetAsync(_estateId, assetId);
             await LoadAsync(_estateId);
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove asset: {ex.Message}";
+            StatusMessage = $"Could not remove asset: {ex.Message}";
         }
     }
 
@@ -1639,13 +1807,11 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private async Task ExecuteDeleteImmovablePropertyAsync(
-        object? parameter)
+    private async Task ExecuteDeleteImmovablePropertyAsync(object? parameter)
     {
         if (parameter is not Guid assetId)
         {
-            StatusMessage =
-                "Could not determine which property to remove.";
+            StatusMessage = "Could not determine which property to remove.";
             return;
         }
 
@@ -1654,23 +1820,17 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Removing immovable property...";
 
-            await _apiClient.DeleteImmovablePropertyAsync(
-                _estateId,
-                assetId);
+            await _apiClient.DeleteImmovablePropertyAsync(_estateId, assetId);
 
-            var refreshedEstate =
-                await _apiClient.GetEstateAsync(_estateId);
-
+            var refreshedEstate = await _apiClient.GetEstateAsync(_estateId);
             if (refreshedEstate is not null)
                 Estate = refreshedEstate;
 
-            StatusMessage =
-                "Immovable property removed successfully.";
+            StatusMessage = "Immovable property removed successfully.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove immovable property: {ex.Message}";
+            StatusMessage = $"Could not remove immovable property: {ex.Message}";
         }
         finally
         {
@@ -1682,13 +1842,11 @@ public partial class EstateDetailViewModel : BaseViewModel
     // Letter Generation
     // ─────────────────────────────────────────────
 
-    private async Task ExecuteGenerateVehicleLetterAsync(
-        object? parameter)
+    private async Task ExecuteGenerateVehicleLetterAsync(object? parameter)
     {
         if (parameter is not Guid assetId)
         {
-            StatusMessage =
-                "Could not determine which vehicle to use.";
+            StatusMessage = "Could not determine which vehicle to use.";
             return;
         }
 
@@ -1697,11 +1855,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Generating traffic letter...";
 
-            var filePath =
-                await _apiClient
-                    .GenerateVehicleLetterToTempFileAsync(
-                        _estateId,
-                        assetId);
+            var filePath = await _apiClient.GenerateVehicleLetterToTempFileAsync(_estateId, assetId);
 
             System.Diagnostics.Process.Start(
                 new System.Diagnostics.ProcessStartInfo
@@ -1710,13 +1864,11 @@ public partial class EstateDetailViewModel : BaseViewModel
                     UseShellExecute = true
                 });
 
-            StatusMessage =
-                "Traffic letter generated successfully.";
+            StatusMessage = "Traffic letter generated successfully.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not generate traffic letter: {ex.Message}";
+            StatusMessage = $"Could not generate traffic letter: {ex.Message}";
 
             System.Windows.MessageBox.Show(
                 StatusMessage,
@@ -1743,8 +1895,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Generating liquidation and distribution account...";
 
-            var tempPath =
-                await _apiClient.DownloadLiquidationAccountToTempFileAsync(_estateId);
+            var tempPath = await _apiClient.DownloadLiquidationAccountToTempFileAsync(_estateId);
 
             var dialog = new Microsoft.Win32.SaveFileDialog
             {
@@ -1786,13 +1937,11 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private async Task ExecuteGenerateInstitutionLetterAsync(
-        object? parameter)
+    private async Task ExecuteGenerateInstitutionLetterAsync(object? parameter)
     {
         if (parameter is not Guid claimId)
         {
-            StatusMessage =
-                "Could not determine which financial claim to use.";
+            StatusMessage = "Could not determine which financial claim to use.";
             return;
         }
 
@@ -1801,11 +1950,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Generating institution letter...";
 
-            var filePath =
-                await _apiClient
-                    .GenerateInstitutionLetterToTempFileAsync(
-                        _estateId,
-                        claimId);
+            var filePath = await _apiClient.GenerateInstitutionLetterToTempFileAsync(_estateId, claimId);
 
             System.Diagnostics.Process.Start(
                 new System.Diagnostics.ProcessStartInfo
@@ -1814,13 +1959,11 @@ public partial class EstateDetailViewModel : BaseViewModel
                     UseShellExecute = true
                 });
 
-            StatusMessage =
-                "Institution letter generated successfully.";
+            StatusMessage = "Institution letter generated successfully.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not generate institution letter: {ex.Message}";
+            StatusMessage = $"Could not generate institution letter: {ex.Message}";
 
             System.Windows.MessageBox.Show(
                 StatusMessage,
@@ -1903,27 +2046,21 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private async Task ExecuteDeleteFinancialClaimAsync(
-        object? parameter)
+    private async Task ExecuteDeleteFinancialClaimAsync(object? parameter)
     {
         if (parameter is not Guid claimId)
             return;
 
         try
         {
-            await _apiClient.DeleteFinancialClaimAsync(
-                _estateId,
-                claimId);
-
+            await _apiClient.DeleteFinancialClaimAsync(_estateId, claimId);
             await LoadAsync(_estateId);
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove claim: {ex.Message}";
+            StatusMessage = $"Could not remove claim: {ex.Message}";
         }
     }
-
 
     // ─────────────────────────────────────────────
     // Liabilities + Liquidation & Distribution
@@ -1937,8 +2074,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             return;
         }
 
-        if (!Money.TryParse(NewLiabilityAmount, out var amount) ||
-            amount < 0)
+        if (!Money.TryParse(NewLiabilityAmount, out var amount) || amount < 0)
         {
             StatusMessage = "Enter a valid liability amount.";
             return;
@@ -1989,30 +2125,24 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not add liability: {ex.Message}";
+            StatusMessage = $"Could not add liability: {ex.Message}";
         }
     }
 
-    private async Task ExecuteDeleteLiabilityAsync(
-        object? parameter)
+    private async Task ExecuteDeleteLiabilityAsync(object? parameter)
     {
         if (parameter is not Guid liabilityId)
             return;
 
         try
         {
-            await _apiClient.DeleteLiabilityAsync(
-                _estateId,
-                liabilityId);
-
+            await _apiClient.DeleteLiabilityAsync(_estateId, liabilityId);
             await LoadAsync(_estateId);
             StatusMessage = "Liability removed.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove liability: {ex.Message}";
+            StatusMessage = $"Could not remove liability: {ex.Message}";
         }
     }
 
@@ -2024,15 +2154,12 @@ public partial class EstateDetailViewModel : BaseViewModel
         try
         {
             LiquidationDistributionDraft =
-                await _apiClient
-                    .GetLiquidationDistributionDraftAsync(
-                        _estateId);
+                await _apiClient.GetLiquidationDistributionDraftAsync(_estateId);
         }
         catch (Exception ex)
         {
             LiquidationDistributionDraft = null;
-            StatusMessage =
-                $"Could not load L&D draft: {ex.Message}";
+            StatusMessage = $"Could not load L&D draft: {ex.Message}";
         }
     }
 
@@ -2044,22 +2171,19 @@ public partial class EstateDetailViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(NewDiaryNote))
         {
-            StatusMessage =
-                "Diary note is required.";
+            StatusMessage = "Diary note is required.";
             return;
         }
 
         if (!NewDiaryDueDate.HasValue)
         {
-            StatusMessage =
-                "Diary due date is required.";
+            StatusMessage = "Diary due date is required.";
             return;
         }
 
         try
         {
-            StatusMessage =
-                "Adding diary entry...";
+            StatusMessage = "Adding diary entry...";
 
             await _apiClient.AddDiaryEntryAsync(
                 _estateId,
@@ -2071,36 +2195,28 @@ public partial class EstateDetailViewModel : BaseViewModel
                 });
 
             NewDiaryNote = string.Empty;
-            NewDiaryDueDate =
-                DateTime.Today.AddDays(7);
+            NewDiaryDueDate = DateTime.Today.AddDays(7);
             NewDiaryNotifyBy = "Email";
 
             await LoadAsync(_estateId);
 
-            StatusMessage =
-                "Diary entry added.";
+            StatusMessage = "Diary entry added.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not add diary entry: {ex.Message}";
+            StatusMessage = $"Could not add diary entry: {ex.Message}";
         }
     }
 
-    private void ExecuteOpenDiaryEntry(
-        object? parameter)
+    private void ExecuteOpenDiaryEntry(object? parameter)
     {
         if (parameter is not DiaryEntryDto diaryEntry)
         {
-            StatusMessage =
-                "Could not open the diary entry.";
+            StatusMessage = "Could not open the diary entry.";
             return;
         }
 
-        var status =
-            diaryEntry.IsCompleted
-                ? "Completed"
-                : "Open";
+        var status = diaryEntry.IsCompleted ? "Completed" : "Open";
 
         var message =
             $"{diaryEntry.Note}\n\n" +
@@ -2115,57 +2231,41 @@ public partial class EstateDetailViewModel : BaseViewModel
             System.Windows.MessageBoxImage.Information);
     }
 
-    private async Task ExecuteToggleDiaryCompleteAsync(
-        object? parameter)
+    private async Task ExecuteToggleDiaryCompleteAsync(object? parameter)
     {
         if (parameter is not DiaryEntryDto diaryEntry)
             return;
 
         try
         {
-            var newStatus =
-                !diaryEntry.IsCompleted;
+            var newStatus = !diaryEntry.IsCompleted;
 
-            await _apiClient.UpdateDiaryEntryStatusAsync(
-                _estateId,
-                diaryEntry.DiaryId,
-                newStatus);
+            await _apiClient.UpdateDiaryEntryStatusAsync(_estateId, diaryEntry.DiaryId, newStatus);
 
             await LoadAsync(_estateId);
 
-            StatusMessage =
-                newStatus
-                    ? "Diary entry marked complete."
-                    : "Diary entry reopened.";
+            StatusMessage = newStatus ? "Diary entry marked complete." : "Diary entry reopened.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not update diary entry: {ex.Message}";
+            StatusMessage = $"Could not update diary entry: {ex.Message}";
         }
     }
 
-    private async Task ExecuteDeleteDiaryEntryAsync(
-        object? parameter)
+    private async Task ExecuteDeleteDiaryEntryAsync(object? parameter)
     {
         if (parameter is not Guid diaryId)
             return;
 
         try
         {
-            await _apiClient.DeleteDiaryEntryAsync(
-                _estateId,
-                diaryId);
-
+            await _apiClient.DeleteDiaryEntryAsync(_estateId, diaryId);
             await LoadAsync(_estateId);
-
-            StatusMessage =
-                "Diary entry removed.";
+            StatusMessage = "Diary entry removed.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove diary entry: {ex.Message}";
+            StatusMessage = $"Could not remove diary entry: {ex.Message}";
         }
     }
 
@@ -2173,9 +2273,6 @@ public partial class EstateDetailViewModel : BaseViewModel
     // Progress
     // ─────────────────────────────────────────────
 
-    // Four-stage administration workflow (Report & Letters -> Administration ->
-    // L&D account -> Inspection & distribution). Dates are templates counted from
-    // today and are meant to be adjusted by the controller.
     private static readonly (string Name, int Days, string Status)[] StbbStages =
     {
         ("Stage 1 – Report estate to the Master and obtain Letters of Executorship", 42, "InProgress"),
@@ -2304,13 +2401,11 @@ public partial class EstateDetailViewModel : BaseViewModel
 
             await RefreshEstateAsync();
 
-            StatusMessage =
-                "Progress update added.";
+            StatusMessage = "Progress update added.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not add progress update: {ex.Message}";
+            StatusMessage = $"Could not add progress update: {ex.Message}";
         }
         finally
         {
@@ -2318,13 +2413,11 @@ public partial class EstateDetailViewModel : BaseViewModel
         }
     }
 
-    private void ExecuteBeginEditProgressStage(
-        object? parameter)
+    private void ExecuteBeginEditProgressStage(object? parameter)
     {
         if (parameter is not ProgressStageDto stage)
         {
-            StatusMessage =
-                "Could not determine which progress update to edit.";
+            StatusMessage = "Could not determine which progress update to edit.";
             return;
         }
 
@@ -2344,15 +2437,13 @@ public partial class EstateDetailViewModel : BaseViewModel
     {
         if (_editingProgressStageId == Guid.Empty)
         {
-            StatusMessage =
-                "Choose a progress update to edit first.";
+            StatusMessage = "Choose a progress update to edit first.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EditingProgressTitle))
         {
-            StatusMessage =
-                "Progress update is required.";
+            StatusMessage = "Progress update is required.";
             return;
         }
 
@@ -2374,13 +2465,11 @@ public partial class EstateDetailViewModel : BaseViewModel
             CancelProgressEdit();
             await RefreshEstateAsync();
 
-            StatusMessage =
-                "Progress update saved.";
+            StatusMessage = "Progress update saved.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not save progress update: {ex.Message}";
+            StatusMessage = $"Could not save progress update: {ex.Message}";
         }
         finally
         {
@@ -2397,13 +2486,11 @@ public partial class EstateDetailViewModel : BaseViewModel
         IsEditingProgress = false;
     }
 
-    private async Task ExecuteDeleteProgressStageAsync(
-        object? parameter)
+    private async Task ExecuteDeleteProgressStageAsync(object? parameter)
     {
         if (parameter is not Guid stageId)
         {
-            StatusMessage =
-                "Could not determine which progress update to remove.";
+            StatusMessage = "Could not determine which progress update to remove.";
             return;
         }
 
@@ -2412,22 +2499,18 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Removing progress update...";
 
-            await _apiClient.DeleteProgressStageAsync(
-                _estateId,
-                stageId);
+            await _apiClient.DeleteProgressStageAsync(_estateId, stageId);
 
             if (_editingProgressStageId == stageId)
                 CancelProgressEdit();
 
             await RefreshEstateAsync();
 
-            StatusMessage =
-                "Progress update removed.";
+            StatusMessage = "Progress update removed.";
         }
         catch (Exception ex)
         {
-            StatusMessage =
-                $"Could not remove progress update: {ex.Message}";
+            StatusMessage = $"Could not remove progress update: {ex.Message}";
         }
         finally
         {
@@ -2437,241 +2520,14 @@ public partial class EstateDetailViewModel : BaseViewModel
 
     private async Task RefreshEstateAsync()
     {
-        var refreshedEstate =
-            await _apiClient.GetEstateAsync(_estateId);
-
+        var refreshedEstate = await _apiClient.GetEstateAsync(_estateId);
         if (refreshedEstate is not null)
             Estate = refreshedEstate;
     }
 
     // ─────────────────────────────────────────────
-    // Executor Tab – command implementations
+    // Section 29 / 35 Advertisements
     // ─────────────────────────────────────────────
-
-    public void LoadExecutorDetail(ExecutorDto executor)
-    {
-        _executorDetailId = executor.ExecutorId;
-        ExecutorDetailFullName = executor.FullName;
-        ExecutorDetailIdNumber = executor.IdNumber ?? string.Empty;
-        ExecutorDetailEmail = executor.Email ?? string.Empty;
-        ExecutorDetailPhone = executor.Phone ?? string.Empty;
-        ExecutorDetailAddress = executor.Address ?? string.Empty;
-        ExecutorDetailRole = executor.Role ?? "Nominated Executor";
-        ExecutorDetailMastersOffice = executor.MastersOffice ?? string.Empty;
-        ExecutorDetailLettersRef = executor.LettersOfExecutorshipRef ?? string.Empty;
-        ExecutorDetailLettersDate = executor.LettersOfExecutorshipDate;
-        HasLettersDocument = !string.IsNullOrWhiteSpace(executor.LettersOfExecutorshipRef);
-        LettersDocumentName = executor.LettersOfExecutorshipRef;
-        IsEditingExecutor = true;
-    }
-
-    public void ClearExecutorForm()
-    {
-        _executorDetailId = Guid.Empty;
-        ExecutorDetailFullName = string.Empty;
-        ExecutorDetailIdNumber = string.Empty;
-        ExecutorDetailEmail = string.Empty;
-        ExecutorDetailPhone = string.Empty;
-        ExecutorDetailAddress = string.Empty;
-        ExecutorDetailRole = "Nominated Executor";
-        ExecutorDetailMastersOffice = string.Empty;
-        ExecutorDetailLettersRef = string.Empty;
-        ExecutorDetailLettersDate = null;
-        HasLettersDocument = false;
-        LettersDocumentName = null;
-        IsEditingExecutor = false;
-    }
-
-    private async Task ExecuteSaveExecutorDetailAsync()
-    {
-        if (string.IsNullOrWhiteSpace(ExecutorDetailFullName))
-        {
-            StatusMessage = "Executor full name is required.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(ExecutorDetailEmail))
-        {
-            StatusMessage = "Executor email is required.";
-            return;
-        }
-
-        try
-        {
-            IsLoading = true;
-
-            if (_executorDetailId == Guid.Empty)
-            {
-                // ── ADD NEW EXECUTOR ──
-                StatusMessage = "Saving executor...";
-
-                await _apiClient.AddExecutorAsync(
-                    _estateId,
-                    new CreateExecutorRequest
-                    {
-                        FullName = ExecutorDetailFullName.Trim(),
-                        IdNumber = ExecutorDetailIdNumber.Trim(),
-                        Email = ExecutorDetailEmail.Trim(),
-                        Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
-                                       ? "Nominated Executor"
-                                       : ExecutorDetailRole.Trim()
-                    });
-
-                // Refresh so we get the server-assigned ExecutorId
-                var refreshed = await _apiClient.GetEstateAsync(_estateId);
-                if (refreshed is not null) Estate = refreshed;
-
-                // Find the newly created executor (highest Id or last in list)
-                var newExec = Estate?.Executors?
-                    .FirstOrDefault(e => e.FullName.Equals(
-                        ExecutorDetailFullName.Trim(),
-                        StringComparison.OrdinalIgnoreCase));
-
-                if (newExec is not null)
-                {
-                    _executorDetailId = newExec.ExecutorId;
-                    IsEditingExecutor = true;
-
-                    // Save the extended fields (phone, address, etc.)
-                    await _apiClient.UpdateExecutorAsync(
-                        _estateId,
-                        _executorDetailId,
-                        new UpdateExecutorRequest
-                        {
-                            FullName = ExecutorDetailFullName.Trim(),
-                            IdNumber = ExecutorDetailIdNumber.Trim(),
-                            Email = ExecutorDetailEmail.Trim(),
-                            Phone = ExecutorDetailPhone.Trim(),
-                            Address = ExecutorDetailAddress.Trim(),
-                            Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
-                                                            ? "Nominated Executor"
-                                                            : ExecutorDetailRole.Trim(),
-                            MastersOffice = ExecutorDetailMastersOffice.Trim(),
-                            LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
-                            LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                        });
-                }
-
-                await RefreshEstateAsync();
-                StatusMessage = "Executor added successfully.";
-            }
-            else
-            {
-                // ── UPDATE EXISTING EXECUTOR ──
-                StatusMessage = "Saving executor...";
-
-                await _apiClient.UpdateExecutorAsync(
-                    _estateId,
-                    _executorDetailId,
-                    new UpdateExecutorRequest
-                    {
-                        FullName = ExecutorDetailFullName.Trim(),
-                        IdNumber = ExecutorDetailIdNumber.Trim(),
-                        Email = ExecutorDetailEmail.Trim(),
-                        Phone = ExecutorDetailPhone.Trim(),
-                        Address = ExecutorDetailAddress.Trim(),
-                        Role = ExecutorDetailRole.Trim(),
-                        MastersOffice = ExecutorDetailMastersOffice.Trim(),
-                        LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
-                        LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                    });
-
-                await RefreshEstateAsync();
-                StatusMessage = "Executor saved.";
-            }
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not save executor: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private async Task ExecuteUploadLettersAsync()
-    {
-        if (_executorDetailId == Guid.Empty)
-        {
-            StatusMessage = "Select an executor first.";
-            return;
-        }
-
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Title = "Select Letters of Executorship",
-            Filter = "PDF files (*.pdf)|*.pdf|All files (*.*)|*.*"
-        };
-
-        if (dialog.ShowDialog() != true)
-            return;
-
-        try
-        {
-            IsLoading = true;
-            StatusMessage = "Uploading Letters of Executorship...";
-
-            var blobRef = await _apiClient.UploadExecutorDocumentAsync(
-                _estateId,
-                _executorDetailId,
-                dialog.FileName);
-
-            ExecutorDetailLettersRef = blobRef;
-            HasLettersDocument = true;
-            LettersDocumentName = System.IO.Path.GetFileName(dialog.FileName);
-
-            await _apiClient.UpdateExecutorAsync(
-                _estateId,
-                _executorDetailId,
-                new UpdateExecutorRequest
-                {
-                    FullName = ExecutorDetailFullName,
-                    IdNumber = ExecutorDetailIdNumber,
-                    Email = ExecutorDetailEmail,
-                    Phone = ExecutorDetailPhone,
-                    Address = ExecutorDetailAddress,
-                    Role = ExecutorDetailRole,
-                    MastersOffice = ExecutorDetailMastersOffice,
-                    LettersOfExecutorshipRef = blobRef,
-                    LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                });
-
-            await RefreshEstateAsync();
-            StatusMessage = "Letters of Executorship uploaded.";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not upload document: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private void ExecuteViewLetters()
-    {
-        if (string.IsNullOrWhiteSpace(ExecutorDetailLettersRef))
-        {
-            StatusMessage = "No Letters of Executorship document on file.";
-            return;
-        }
-
-        try
-        {
-            System.Diagnostics.Process.Start(
-                new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = ExecutorDetailLettersRef,
-                    UseShellExecute = true
-                });
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not open document: {ex.Message}";
-        }
-    }
 
     private async Task ExecuteSaveSection29Async()
     {

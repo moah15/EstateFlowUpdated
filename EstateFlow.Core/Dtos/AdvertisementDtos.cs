@@ -25,4 +25,6 @@ public class UpsertAdvertisementRequest
     public DateTime? ClaimDeadline { get; set; }
     public bool ObjectionsReceived { get; set; }
     public string? Notes { get; set; }
+
+    //hello
 }
