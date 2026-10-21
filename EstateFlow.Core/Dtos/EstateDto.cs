@@ -97,12 +97,12 @@ public class ExecutorDto
     public string? Phone { get; set; }
     public string? Address { get; set; }
     public string? MastersOffice { get; set; }
-    public string? LettersOfExecutorshipRef { get; set; }
+    
     public DateTime? LettersOfExecutorshipDate { get; set; }
     
     public string? LettersDocumentUrl { get; set; }
     public string? LettersDocumentName { get; set; }
-    public List<AdvertisementDto> Advertisements { get; set; } = new();
+   
     
 }
 

@@ -13,14 +13,3 @@ public class UpdateExecutorRequest
     public DateTime? LettersOfExecutorshipDate { get; set; }
 }
 
-public class UpsertAdvertisementRequest
-{
-    public string AdvertisementType { get; set; } = "Section29";
-    public DateTime? GazetteDate { get; set; }
-    public string? GazetteNumber { get; set; }
-    public string? NewspaperName { get; set; }
-    public DateTime? NewspaperDate { get; set; }
-    public DateTime? ClaimDeadline { get; set; }
-    public bool ObjectionsReceived { get; set; }
-    public string? Notes { get; set; }
-}
