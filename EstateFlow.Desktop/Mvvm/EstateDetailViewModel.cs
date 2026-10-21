@@ -653,12 +653,45 @@ public partial class EstateDetailViewModel : BaseViewModel
     public string ExecutorFormTitle =>
         IsEditingExecutor ? "Edit Executor" : "New Executor";
 
-    private string _executorDetailFullName = string.Empty;
-    public string ExecutorDetailFullName
+    private string _executorDetailFirstName = string.Empty;
+    public string ExecutorDetailFirstName
     {
-        get => _executorDetailFullName;
-        set => SetProperty(ref _executorDetailFullName, value);
+        get => _executorDetailFirstName;
+        set
+        {
+            if (SetProperty(ref _executorDetailFirstName, value))
+                OnPropertyChanged(nameof(ExecutorDetailFullName));
+        }
     }
+
+    private string _executorDetailMiddleName = string.Empty;
+    public string ExecutorDetailMiddleName
+    {
+        get => _executorDetailMiddleName;
+        set
+        {
+            if (SetProperty(ref _executorDetailMiddleName, value))
+                OnPropertyChanged(nameof(ExecutorDetailFullName));
+        }
+    }
+
+    private string _executorDetailSurname = string.Empty;
+    public string ExecutorDetailSurname
+    {
+        get => _executorDetailSurname;
+        set
+        {
+            if (SetProperty(ref _executorDetailSurname, value))
+                OnPropertyChanged(nameof(ExecutorDetailFullName));
+        }
+    }
+
+    // The server stores a single full name, built from the three name fields.
+    public string ExecutorDetailFullName =>
+        string.Join(" ",
+            new[] { ExecutorDetailFirstName, ExecutorDetailMiddleName, ExecutorDetailSurname }
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => s.Trim()));
 
     private string _executorDetailIdNumber = string.Empty;
     public string ExecutorDetailIdNumber
@@ -716,19 +749,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         set => SetProperty(ref _executorDetailLettersDate, value);
     }
 
-    private string? _lettersDocumentName;
-    public string? LettersDocumentName
-    {
-        get => _lettersDocumentName;
-        set => SetProperty(ref _lettersDocumentName, value);
-    }
-
-    private bool _hasLettersDocument;
-    public bool HasLettersDocument
-    {
-        get => _hasLettersDocument;
-        set => SetProperty(ref _hasLettersDocument, value);
-    }
 
     // ─────────────────────────────────────────────
     // Executor Tab – Section 29 Advertisement
@@ -863,8 +883,6 @@ public partial class EstateDetailViewModel : BaseViewModel
     public ICommand SaveExecutorDetailCommand { get; }
     public ICommand SelectExecutorCommand { get; }
     public ICommand ClearExecutorFormCommand { get; }
-    public ICommand UploadLettersCommand { get; }
-    public ICommand ViewLettersCommand { get; }
     public ICommand SaveSection29Command { get; }
     public ICommand SaveSection35Command { get; }
 
@@ -944,13 +962,6 @@ public partial class EstateDetailViewModel : BaseViewModel
 
         ClearExecutorFormCommand = new RelayCommand(_ => ClearExecutorForm());
 
-        UploadLettersCommand =
-            new AsyncRelayCommand(
-                async _ => await ExecuteUploadLettersAsync());
-
-        ViewLettersCommand =
-            new RelayCommand(
-                _ => ExecuteViewLetters());
 
         SaveSection29Command =
             new AsyncRelayCommand(
@@ -1205,7 +1216,7 @@ public partial class EstateDetailViewModel : BaseViewModel
     public void LoadExecutorDetail(ExecutorDto executor)
     {
         _executorDetailId = executor.ExecutorId;
-        ExecutorDetailFullName = executor.FullName;
+        SetExecutorName(executor.FullName);
         ExecutorDetailIdNumber = executor.IdNumber ?? string.Empty;
         ExecutorDetailEmail = executor.Email ?? string.Empty;
         ExecutorDetailPhone = executor.Phone ?? string.Empty;
@@ -1214,15 +1225,42 @@ public partial class EstateDetailViewModel : BaseViewModel
         ExecutorDetailMastersOffice = executor.MastersOffice ?? string.Empty;
         ExecutorDetailLettersRef = executor.LettersOfExecutorshipRef ?? string.Empty;
         ExecutorDetailLettersDate = executor.LettersOfExecutorshipDate;
-        HasLettersDocument = !string.IsNullOrWhiteSpace(executor.LettersOfExecutorshipRef);
-        LettersDocumentName = executor.LettersOfExecutorshipRef;
         IsEditingExecutor = true;
     }
+
+    // Older executors only have a full name, so split it across the three name fields.
+    private void SetExecutorName(string? fullName)
+    {
+        var parts = (fullName ?? string.Empty)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        ExecutorDetailFirstName = parts.Length > 0 ? parts[0] : string.Empty;
+        ExecutorDetailSurname = parts.Length > 1 ? parts[^1] : string.Empty;
+        ExecutorDetailMiddleName = parts.Length > 2 ? string.Join(" ", parts[1..^1]) : string.Empty;
+    }
+
+    private UpdateExecutorRequest BuildExecutorUpdateRequest() => new()
+    {
+        FullName = ExecutorDetailFullName,
+        IdNumber = ExecutorDetailIdNumber.Trim(),
+        Email = ExecutorDetailEmail.Trim(),
+        Phone = ExecutorDetailPhone.Trim(),
+        Address = ExecutorDetailAddress.Trim(),
+        Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
+            ? "Nominated Executor"
+            : ExecutorDetailRole.Trim(),
+        MastersOffice = ExecutorDetailMastersOffice.Trim(),
+        // Kept as-is so saving an executor does not clear existing letters details.
+        LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
+        LettersOfExecutorshipDate = ExecutorDetailLettersDate
+    };
 
     public void ClearExecutorForm()
     {
         _executorDetailId = Guid.Empty;
-        ExecutorDetailFullName = string.Empty;
+        ExecutorDetailFirstName = string.Empty;
+        ExecutorDetailMiddleName = string.Empty;
+        ExecutorDetailSurname = string.Empty;
         ExecutorDetailIdNumber = string.Empty;
         ExecutorDetailEmail = string.Empty;
         ExecutorDetailPhone = string.Empty;
@@ -1231,8 +1269,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         ExecutorDetailMastersOffice = string.Empty;
         ExecutorDetailLettersRef = string.Empty;
         ExecutorDetailLettersDate = null;
-        HasLettersDocument = false;
-        LettersDocumentName = null;
         IsEditingExecutor = false;
     }
 
@@ -1244,9 +1280,10 @@ public partial class EstateDetailViewModel : BaseViewModel
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(ExecutorDetailFullName))
+        if (string.IsNullOrWhiteSpace(ExecutorDetailFirstName) ||
+            string.IsNullOrWhiteSpace(ExecutorDetailSurname))
         {
-            StatusMessage = "Executor full name is required.";
+            StatusMessage = "Executor first name and surname are required.";
             return;
         }
 
@@ -1265,11 +1302,11 @@ public partial class EstateDetailViewModel : BaseViewModel
                 // ── ADD NEW EXECUTOR ──
                 StatusMessage = "Saving executor...";
 
-                await _apiClient.AddExecutorAsync(
+                var newExecutorId = await _apiClient.AddExecutorAsync(
                     _estateId,
                     new CreateExecutorRequest
                     {
-                        FullName = ExecutorDetailFullName.Trim(),
+                        FullName = ExecutorDetailFullName,
                         IdNumber = ExecutorDetailIdNumber.Trim(),
                         Email = ExecutorDetailEmail.Trim(),
                         Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
@@ -1277,64 +1314,14 @@ public partial class EstateDetailViewModel : BaseViewModel
                                        : ExecutorDetailRole.Trim()
                     });
 
-                // Refresh to get the server-assigned ExecutorId
-                var refreshed = await _apiClient.GetEstateAsync(_estateId);
-                if (refreshed is not null) Estate = refreshed;
+                _executorDetailId = newExecutorId;
+                IsEditingExecutor = true;
 
-                // Find the newly created executor by name match
-                var newExec = Estate?.Executors?
-                    .FirstOrDefault(e => e.FullName.Equals(
-                        ExecutorDetailFullName.Trim(),
-                        StringComparison.OrdinalIgnoreCase));
-
-                if (newExec is not null)
-                {
-                    _executorDetailId = newExec.ExecutorId;
-                    IsEditingExecutor = true;
-
-                    // Save extended fields (phone, address, master's office, etc.)
-                    await _apiClient.UpdateExecutorAsync(
-                        _estateId,
-                        _executorDetailId,
-                        new UpdateExecutorRequest
-                        {
-                            FullName = ExecutorDetailFullName.Trim(),
-                            IdNumber = ExecutorDetailIdNumber.Trim(),
-                            Email = ExecutorDetailEmail.Trim(),
-                            Phone = ExecutorDetailPhone.Trim(),
-                            Address = ExecutorDetailAddress.Trim(),
-                            Role = string.IsNullOrWhiteSpace(ExecutorDetailRole)
-                                                            ? "Nominated Executor"
-                                                            : ExecutorDetailRole.Trim(),
-                            MastersOffice = ExecutorDetailMastersOffice.Trim(),
-                            LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
-                            LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                        });
-                }
-
-                await RefreshEstateAsync();
-                StatusMessage = "Executor added successfully.";
-            }
-            else
-            {
-                // ── UPDATE EXISTING EXECUTOR ──
-                StatusMessage = "Saving executor...";
-
+                // Save the remaining fields (phone, address, master's office, ...)
                 await _apiClient.UpdateExecutorAsync(
                     _estateId,
                     _executorDetailId,
-                    new UpdateExecutorRequest
-                    {
-                        FullName = ExecutorDetailFullName.Trim(),
-                        IdNumber = ExecutorDetailIdNumber.Trim(),
-                        Email = ExecutorDetailEmail.Trim(),
-                        Phone = ExecutorDetailPhone.Trim(),
-                        Address = ExecutorDetailAddress.Trim(),
-                        Role = ExecutorDetailRole.Trim(),
-                        MastersOffice = ExecutorDetailMastersOffice.Trim(),
-                        LettersOfExecutorshipRef = ExecutorDetailLettersRef.Trim(),
-                        LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                    });
+                    BuildExecutorUpdateRequest());
 
                 await RefreshEstateAsync();
                 StatusMessage = "Executor saved.";
@@ -1347,89 +1334,6 @@ public partial class EstateDetailViewModel : BaseViewModel
         finally
         {
             IsLoading = false;
-        }
-    }
-
-    private async Task ExecuteUploadLettersAsync()
-    {
-        if (_executorDetailId == Guid.Empty)
-        {
-            StatusMessage = "Save the executor first, then upload letters.";
-            return;
-        }
-
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Title = "Select Letters of Executorship",
-            Filter = "PDF files (*.pdf)|*.pdf|All files (*.*)|*.*"
-        };
-
-        if (dialog.ShowDialog() != true)
-            return;
-
-        try
-        {
-            IsLoading = true;
-            StatusMessage = "Uploading Letters of Executorship...";
-
-            var blobRef = await _apiClient.UploadExecutorDocumentAsync(
-                _estateId,
-                _executorDetailId,
-                dialog.FileName);
-
-            ExecutorDetailLettersRef = blobRef;
-            HasLettersDocument = true;
-            LettersDocumentName = System.IO.Path.GetFileName(dialog.FileName);
-
-            await _apiClient.UpdateExecutorAsync(
-                _estateId,
-                _executorDetailId,
-                new UpdateExecutorRequest
-                {
-                    FullName = ExecutorDetailFullName,
-                    IdNumber = ExecutorDetailIdNumber,
-                    Email = ExecutorDetailEmail,
-                    Phone = ExecutorDetailPhone,
-                    Address = ExecutorDetailAddress,
-                    Role = ExecutorDetailRole,
-                    MastersOffice = ExecutorDetailMastersOffice,
-                    LettersOfExecutorshipRef = blobRef,
-                    LettersOfExecutorshipDate = ExecutorDetailLettersDate
-                });
-
-            await RefreshEstateAsync();
-            StatusMessage = "Letters of Executorship uploaded.";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not upload document: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private void ExecuteViewLetters()
-    {
-        if (string.IsNullOrWhiteSpace(ExecutorDetailLettersRef))
-        {
-            StatusMessage = "No Letters of Executorship document on file.";
-            return;
-        }
-
-        try
-        {
-            System.Diagnostics.Process.Start(
-                new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = ExecutorDetailLettersRef,
-                    UseShellExecute = true
-                });
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not open document: {ex.Message}";
         }
     }
 
