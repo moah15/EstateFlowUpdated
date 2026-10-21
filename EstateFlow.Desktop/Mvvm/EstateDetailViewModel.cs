@@ -1355,6 +1355,13 @@ public partial class EstateDetailViewModel : BaseViewModel
             return;
         }
 
+        if (!System.Net.Mail.MailAddress.TryCreate(NewBeneficiaryEmail.Trim(), out var beneficiaryEmail) ||
+            !string.Equals(beneficiaryEmail.Address, NewBeneficiaryEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            StatusMessage = "Enter a valid beneficiary email address, e.g. name@example.com.";
+            return;
+        }
+
         if (NewBeneficiaryHeirType == "Natural Person" &&
             (NewBeneficiaryDateOfBirth is null ||
              string.IsNullOrWhiteSpace(NewBeneficiaryMaritalStatus)))

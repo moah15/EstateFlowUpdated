@@ -144,7 +144,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/progress-stages",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task UpdateProgressStageAsync(
@@ -195,7 +197,9 @@ public class ApiClient : IApiClient
                 $"api/diary/estate/{estateId}",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task UpdateDiaryEntryStatusAsync(
@@ -403,7 +407,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/beneficiaries",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteBeneficiaryAsync(
@@ -430,7 +436,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/movable-assets",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteMovableAssetAsync(
@@ -457,7 +465,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/immovable-properties",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteImmovablePropertyAsync(
@@ -484,7 +494,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/financial-claims",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteFinancialClaimAsync(
@@ -511,7 +523,9 @@ public class ApiClient : IApiClient
                 $"api/estates/{estateId}/liabilities",
                 request);
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithApiMessageAsync(
+            response,
+            "The record could not be saved");
     }
 
     public async Task DeleteLiabilityAsync(
@@ -852,6 +866,29 @@ public class ApiClient : IApiClient
                     message =
                         messageElement.GetString()
                         ?? string.Empty;
+                }
+                else if (json.RootElement.TryGetProperty(
+                             "errors",
+                             out var errorsElement))
+                {
+                    var details = new List<string>();
+
+                    var items =
+                        errorsElement.ValueKind == JsonValueKind.Object
+                            ? errorsElement.EnumerateObject().Select(p => p.Value)
+                            : errorsElement.ValueKind == JsonValueKind.Array
+                                ? errorsElement.EnumerateArray()
+                                : Enumerable.Empty<JsonElement>();
+
+                    foreach (var item in items)
+                    {
+                        if (item.ValueKind == JsonValueKind.Array)
+                            details.AddRange(item.EnumerateArray().Select(e => e.ToString()));
+                        else
+                            details.Add(item.ToString());
+                    }
+
+                    message = string.Join(" ", details.Where(d => !string.IsNullOrWhiteSpace(d)));
                 }
             }
             catch (JsonException)
