@@ -214,11 +214,7 @@ public interface IApiClient
         Guid estateId,
         Guid itemId);
 
-    Task<List<AuditEntryDto>> GetAuditTrailAsync(
-        Guid estateId,
-        int take);
-
-    // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
     // Scanned Documents
     // ─────────────────────────────────────────────
 
@@ -236,6 +232,16 @@ public interface IApiClient
         Guid estateId,
         Guid documentId);
     Task UpdateExecutorAsync(Guid estateId, Guid executorDetailId, UpdateExecutorRequest updateExecutorRequest);
+
+    // Edit existing records
+    Task UpdateBeneficiaryAsync(Guid estateId, Guid beneficiaryId, CreateBeneficiaryRequest request);
+    Task UpdateMovableAssetAsync(Guid estateId, Guid assetId, CreateMovableAssetRequest request);
+    Task UpdateImmovablePropertyAsync(Guid estateId, Guid assetId, CreateImmovablePropertyRequest request);
+    Task UpdateFinancialClaimAsync(Guid estateId, Guid claimId, CreateFinancialClaimRequest request);
+    Task UpdateLiabilityAsync(Guid estateId, Guid liabilityId, CreateLiabilityRequest request);
+    Task UpdateCashbookEntryAsync(Guid estateId, Guid entryId, CreateCashbookEntryRequest request);
+    Task UpdateChecklistItemAsync(Guid estateId, Guid itemId, CreateChecklistItemRequest request);
+    Task UpdateDiaryEntryAsync(Guid estateId, Guid diaryId, CreateDiaryEntryRequest request);
     Task<string> UploadExecutorDocumentAsync(Guid estateId, Guid executorDetailId, string fileName);
     Task UpsertAdvertisementAsync(Guid estateId, UpsertAdvertisementRequest upsertAdvertisementRequest);
 }

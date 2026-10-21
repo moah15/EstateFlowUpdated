@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using EstateFlow.Core.Dtos;
+using EstateFlow.Core.Validation;
 using EstateFlow.Desktop.Services;
 
 namespace EstateFlow.Desktop.Mvvm;
@@ -203,7 +204,21 @@ public class EstateFormViewModel : BaseViewModel
     public string DeceasedIdNumber
     {
         get => _deceasedIdNumber;
-        set => SetProperty(ref _deceasedIdNumber, value);
+        set
+        {
+            if (SetProperty(ref _deceasedIdNumber, value))
+                FillDeceasedDateOfBirthFromId();
+        }
+    }
+
+    // The ID number holds the date of birth, so fill it in when it has not been entered yet.
+    private void FillDeceasedDateOfBirthFromId()
+    {
+        if (DeceasedDateOfBirth is null &&
+            SaIdNumber.TryGetDateOfBirth(DeceasedIdNumber, DateOfDeath, out var dob))
+        {
+            DeceasedDateOfBirth = dob;
+        }
     }
 
     private string _deceasedMaritalStatus = string.Empty;
@@ -376,6 +391,13 @@ public class EstateFormViewModel : BaseViewModel
             return;
         }
 
+        var idError = SaIdNumber.Validate(DeceasedIdNumber, DeceasedDateOfBirth, "Deceased");
+        if (idError is not null)
+        {
+            StatusMessage = idError;
+            return;
+        }
+
         Money.TryParse(
             AdministrationExpenses,
             out var administrationExpenses);
@@ -435,7 +457,10 @@ public class EstateFormViewModel : BaseViewModel
                     DeceasedSpouseIdNumber = DeceasedSpouseIdNumber,
                     DeceasedWillDate = DeceasedWillDate,
                     DeceasedWillLocation = DeceasedWillLocation,
-                    
+                    DeceasedGender = DeceasedGender,
+                    DeceasedDateOfBirth = DeceasedDateOfBirth,
+                    DeceasedLivedInSouthAfrica = DeceasedLivedInSouthAfrica,
+                    DeceasedCodicilDate = DeceasedCodicilDate
                 };
                 await _apiClient.UpdateEstateAsync(_editingEstateId!.Value, updateRequest);
                 _navigation.NavigateToEstateDetail(_editingEstateId.Value);

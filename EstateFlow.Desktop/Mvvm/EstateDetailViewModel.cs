@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using EstateFlow.Core.Dtos;
+using EstateFlow.Core.Validation;
 using EstateFlow.Desktop.Services;
 using System.Collections.ObjectModel;
 
@@ -25,6 +26,7 @@ public partial class EstateDetailViewModel : BaseViewModel
                 OnPropertyChanged(nameof(CurrentProgressSummary)); RebuildHeirOptions();
                 OnPropertyChanged(nameof(PropertyShareAllowed));
                 RefreshLedger();
+                LoadAdvertisementsFromEstate();
 
             }
         }
@@ -163,7 +165,11 @@ public partial class EstateDetailViewModel : BaseViewModel
     public string NewBeneficiaryIdNumber
     {
         get => _newBeneficiaryIdNumber;
-        set => SetProperty(ref _newBeneficiaryIdNumber, value);
+        set
+        {
+            if (SetProperty(ref _newBeneficiaryIdNumber, value))
+                FillBeneficiaryDateOfBirthFromId();
+        }
     }
 
     private string _newBeneficiaryEmail = string.Empty;
@@ -484,7 +490,7 @@ public partial class EstateDetailViewModel : BaseViewModel
     public DateTime? NewClaimCollectedDate { get => _newClaimCollectedDate; set => SetProperty(ref _newClaimCollectedDate, value); }
 
     private bool _newClaimIsCreditLife;
-    public bool NewClaimIsCreditLife { get => _newClaimIsCreditLife; set => SetProperty(ref _newClaimIsCollected, value); }
+    public bool NewClaimIsCreditLife { get => _newClaimIsCreditLife; set => SetProperty(ref _newClaimIsCreditLife, value); }
 
     private string _newClaimLinkedLiabilityNote = string.Empty;
     public string NewClaimLinkedLiabilityNote { get => _newClaimLinkedLiabilityNote; set => SetProperty(ref _newClaimLinkedLiabilityNote, value); }
@@ -646,7 +652,10 @@ public partial class EstateDetailViewModel : BaseViewModel
         set
         {
             if (SetProperty(ref _isEditingExecutor, value))
+            {
                 OnPropertyChanged(nameof(ExecutorFormTitle));
+                OnPropertyChanged(nameof(ExecutorSaveLabel));
+            }
         }
     }
 
@@ -925,6 +934,7 @@ public partial class EstateDetailViewModel : BaseViewModel
         _navigation = navigation;
 
         InitLedgerCommands();
+        InitEditCommands();
 
         BackCommand = new RelayCommand(
             _ => _navigation.NavigateToDashboard());
@@ -1094,7 +1104,6 @@ public partial class EstateDetailViewModel : BaseViewModel
             if (Estate is not null)
             {
                 await LoadLiquidationDistributionAsync();
-                await LoadAuditAsync();
             }
 
             StatusMessage =
@@ -1188,6 +1197,15 @@ public partial class EstateDetailViewModel : BaseViewModel
 
         try
         {
+            if (System.Windows.MessageBox.Show(
+                    "Remove this executor from the estate?",
+                    "Remove Executor",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
             IsLoading = true;
             StatusMessage = "Removing executor...";
 
@@ -1388,13 +1406,19 @@ public partial class EstateDetailViewModel : BaseViewModel
             residueDenominator = d;
         }
 
+        var idError = SaIdNumber.Validate(NewBeneficiaryIdNumber, NewBeneficiaryDateOfBirth, "Heir");
+        if (idError is not null)
+        {
+            StatusMessage = idError;
+            return;
+        }
+
         Money.TryParse(NewBeneficiaryCashLegacyAmount, out var cashLegacyAmount);
         Money.TryParse(NewBeneficiaryAdvancesPaid, out var advancesPaid);
 
         try
         {
-            await _apiClient.AddBeneficiaryAsync(
-                _estateId,
+            await SaveBeneficiaryAsync(
                 new CreateBeneficiaryRequest
                 {
                     FullName = NewBeneficiaryFullName,
@@ -1423,28 +1447,7 @@ public partial class EstateDetailViewModel : BaseViewModel
                     DisplayOrder = (Estate?.Beneficiaries.Count ?? 0) + 1
                 });
 
-            NewBeneficiaryFirstName = string.Empty;
-            NewBeneficiaryMiddleName = string.Empty;
-            NewBeneficiarySurname = string.Empty;
-            NewBeneficiaryIdNumber = string.Empty;
-            NewBeneficiaryEmail = string.Empty;
-            NewBeneficiaryRelationship = string.Empty;
-            NewBeneficiaryHeirType = "Natural Person";
-            NewBeneficiaryRelationshipDescription = string.Empty;
-            NewBeneficiaryDateOfBirth = null;
-            NewBeneficiaryGender = string.Empty;
-            NewBeneficiaryMaritalStatus = string.Empty;
-            NewBeneficiaryWillClause = string.Empty;
-            NewBeneficiaryCashLegacyAmount = "0";
-            NewBeneficiaryResidueNumerator = string.Empty;
-            NewBeneficiaryResidueDenominator = string.Empty;
-            NewBeneficiaryAdvancesPaid = "0";
-            NewBeneficiaryIsSurvivingSpouse = false;
-            NewBeneficiaryIsMinor = false;
-            NewBeneficiaryGuardianOrTrustee = string.Empty;
-            NewBeneficiaryIsPredeceased = false;
-            NewBeneficiaryIsUltimateBeneficiary = false;
-            NewBeneficiaryBareDominiumFraction = string.Empty;
+            ResetBeneficiaryForm();
 
             await LoadAsync(_estateId);
         }
@@ -1523,8 +1526,7 @@ public partial class EstateDetailViewModel : BaseViewModel
 
         try
         {
-            await _apiClient.AddMovableAssetAsync(
-                _estateId,
+            await SaveMovableAsync(
                 new CreateMovableAssetRequest
                 {
                     Description = NewAssetDescription,
@@ -1553,26 +1555,7 @@ public partial class EstateDetailViewModel : BaseViewModel
                     CumulativeDividend = NewAssetIsRegisteredShare ? cumulativeDividend : 0
                 });
 
-            NewAssetDescription = string.Empty;
-            NewAssetType = string.Empty;
-            NewAssetValue = "0";
-            NewAssetIsVehicle = false;
-            NewAssetRegistrationNumber = string.Empty;
-            NewAssetVinNumber = string.Empty;
-            NewAssetMake = string.Empty;
-            NewAssetCategory = "Movable";
-            NewAssetValuerName = string.Empty;
-            NewAssetValuationDate = null;
-            NewAssetIsSpecialBequest = false;
-            NewAssetIsSoldOrReducedToCash = false;
-            NewAssetSaleProceeds = string.Empty;
-            NewAssetSaleDate = null;
-            NewAssetBuyerName = string.Empty;
-            NewAssetShareCompany = string.Empty;
-            NewAssetNumberOfShares = string.Empty;
-            NewAssetShareClass = string.Empty;
-            NewAssetPriceCents = string.Empty;
-            NewAssetCumulativeDividend = "0";
+            ResetMovableForm();
 
             await LoadAsync(_estateId);
         }
@@ -1648,8 +1631,7 @@ public partial class EstateDetailViewModel : BaseViewModel
             IsLoading = true;
             StatusMessage = "Saving immovable property...";
 
-            await _apiClient.AddImmovablePropertyAsync(
-                _estateId,
+            await SaveImmovableAsync(
                 new CreateImmovablePropertyRequest
                 {
                     Description = NewPropertyDescription.Trim(),
@@ -1678,35 +1660,13 @@ public partial class EstateDetailViewModel : BaseViewModel
                     PurchaserName = NewPropertyIsSold ? NewPropertyPurchaserName : null
                 });
 
-            NewPropertyDescription = string.Empty;
-            NewPropertyTitleDeedNumber = string.Empty;
-            NewPropertyMunicipalValue = "0";
-            NewPropertyType = "Conventional";
-            NewPropertyErfNumber = string.Empty;
-            NewPropertyTownship = string.Empty;
-            NewPropertyDivision = string.Empty;
-            NewPropertyProvince = string.Empty;
-            NewPropertyExtent = string.Empty;
-            NewPropertyStreetAddress = string.Empty;
-            NewPropertySchemeName = string.Empty;
-            NewPropertySectionNumber = string.Empty;
-            NewPropertyExclusiveUseAreas = string.Empty;
-            NewPropertyShareNumerator = string.Empty;
-            NewPropertyShareDenominator = string.Empty;
-            NewPropertyMarketValue = string.Empty;
-            NewPropertyValuerName = string.Empty;
-            NewPropertyValuationDate = null;
-            NewPropertyIsSpecialBequest = false;
-            NewPropertyIsSold = false;
-            NewPropertySalePrice = "0";
-            NewPropertySaleDate = null;
-            NewPropertyPurchaserName = string.Empty;
+            ResetImmovableForm();
 
             var refreshedEstate = await _apiClient.GetEstateAsync(_estateId);
             if (refreshedEstate is not null)
                 Estate = refreshedEstate;
 
-            StatusMessage = "Immovable property added successfully.";
+            StatusMessage = "Immovable property saved.";
         }
         catch (Exception ex2)
         {
@@ -1913,8 +1873,7 @@ public partial class EstateDetailViewModel : BaseViewModel
 
         try
         {
-            await _apiClient.AddFinancialClaimAsync(
-                _estateId,
+            await SaveClaimAsync(
                 new CreateFinancialClaimRequest
                 {
                     InstitutionName = NewClaimInstitutionName,
@@ -1934,20 +1893,7 @@ public partial class EstateDetailViewModel : BaseViewModel
                     LinkedLiabilityNote = NewClaimLinkedLiabilityNote
                 });
 
-            NewClaimInstitutionName = string.Empty;
-            NewClaimInstitutionAddress = string.Empty;
-            NewClaimAccountReference = string.Empty;
-            NewClaimValue = "0";
-            NewClaimType = string.Empty;
-            NewClaimInFavour = true;
-            NewClaimAccruedInterest = "0";
-            NewClaimValuationDate = null;
-            NewClaimIsSpecialBequest = false;
-            NewClaimIsCollected = false;
-            NewClaimCollectedAmount = "0";
-            NewClaimCollectedDate = null;
-            NewClaimIsCreditLife = false;
-            NewClaimLinkedLiabilityNote = string.Empty;
+            ResetClaimForm();
 
             await LoadAsync(_estateId);
         }
@@ -1996,8 +1942,7 @@ public partial class EstateDetailViewModel : BaseViewModel
 
         try
         {
-            await _apiClient.AddLiabilityAsync(
-                _estateId,
+            await SaveLiabilityAsync(
                 new CreateLiabilityRequest
                 {
                     CreditorName = NewLiabilityCreditorName.Trim(),
@@ -2016,23 +1961,10 @@ public partial class EstateDetailViewModel : BaseViewModel
                     IsCoveredByCreditLife = NewLiabilityCreditLife
                 });
 
-            NewLiabilityCreditorName = string.Empty;
-            NewLiabilityDescription = string.Empty;
-            NewLiabilityAmount = "0";
-            NewLiabilityCategory = string.Empty;
-            NewLiabilityAccountReference = string.Empty;
-            NewLiabilityInterestAfterDeath = "0";
-            NewLiabilityStatus = "Admitted";
-            NewLiabilityDateLodged = null;
-            NewLiabilitySecuredAgainst = string.Empty;
-            NewLiabilityTakenOverByHeir = false;
-            NewLiabilityIsPaid = false;
-            NewLiabilityAmountPaid = "0";
-            NewLiabilityDatePaid = null;
-            NewLiabilityCreditLife = false;
+            ResetLiabilityForm();
 
             await LoadAsync(_estateId);
-            StatusMessage = "Liability added.";
+            StatusMessage = "Liability saved.";
         }
         catch (Exception ex)
         {
@@ -2096,8 +2028,7 @@ public partial class EstateDetailViewModel : BaseViewModel
         {
             StatusMessage = "Adding diary entry...";
 
-            await _apiClient.AddDiaryEntryAsync(
-                _estateId,
+            await SaveDiaryEntryAsync(
                 new CreateDiaryEntryRequest
                 {
                     Note = NewDiaryNote.Trim(),
@@ -2105,13 +2036,11 @@ public partial class EstateDetailViewModel : BaseViewModel
                     NotifyBy = NewDiaryNotifyBy
                 });
 
-            NewDiaryNote = string.Empty;
-            NewDiaryDueDate = DateTime.Today.AddDays(7);
-            NewDiaryNotifyBy = "Email";
+            ResetDiaryForm();
 
             await LoadAsync(_estateId);
 
-            StatusMessage = "Diary entry added.";
+            StatusMessage = "Diary entry saved.";
         }
         catch (Exception ex)
         {
@@ -2463,8 +2392,7 @@ public partial class EstateDetailViewModel : BaseViewModel
                     Notes = Section29Notes
                 });
 
-            Section29Complete = Section29GazetteDate.HasValue && Section29ClaimDeadline.HasValue;
-            Section29Overdue = Section29ClaimDeadline.HasValue && Section29ClaimDeadline.Value < DateTime.Today && !Section29ObjectionsReceived;
+            await RefreshEstateAsync();
 
             StatusMessage = "Section 29 advertisement saved.";
         }
@@ -2500,6 +2428,8 @@ public partial class EstateDetailViewModel : BaseViewModel
                     ObjectionsReceived = Section35ObjectionsReceived,
                     Notes = Section35Notes
                 });
+
+            await RefreshEstateAsync();
 
             StatusMessage = "Section 35 advertisement saved.";
         }

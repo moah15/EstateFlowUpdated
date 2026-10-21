@@ -88,6 +88,35 @@ public class DiaryController : ControllerBase
     }
 
     // ======================================================
+    // EDIT
+    // ======================================================
+
+    [HttpPut("estate/{estateId:guid}/{diaryId:guid}")]
+    public async Task<ActionResult> Update(
+        Guid estateId,
+        Guid diaryId,
+        [FromBody] CreateDiaryEntryRequest request)
+    {
+        try
+        {
+            await _estateService.UpdateDiaryEntryAsync(
+                estateId,
+                diaryId,
+                request);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    // ======================================================
     // COMPLETE / UNCOMPLETE
     // ======================================================
 
